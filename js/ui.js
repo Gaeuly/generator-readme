@@ -1,15 +1,21 @@
 // js/ui.js
 
 // --- DOM Element Exports ---
+// Mengumpulkan semua elemen DOM yang akan dimanipulasi agar mudah diakses.
 export const DOM = {
     // Buttons
     generateBtn: document.getElementById("generateBtn"),
     copyBtn: document.getElementById("copyBtn"),
     addImageBtn: document.getElementById("add-image-btn"),
+    addTagBtn: document.getElementById("add-tag-btn"),
+    saveGithubTokenBtn: document.getElementById("save-github-token-btn"),
+    saveGeminiTokenBtn: document.getElementById("save-gemini-token-btn"),
     // Inputs
     githubUrlInput: document.getElementById("githubUrl"),
     tagsInput: document.getElementById("tags-input"),
     languageSelect: document.getElementById("language-select"),
+    githubTokenInput: document.getElementById("githubToken"),
+    geminiTokenInput: document.getElementById("geminiToken"),
     // Containers
     messageContainer: document.getElementById("message-container"),
     imageInputsContainer: document.getElementById("image-inputs-container"),
@@ -21,12 +27,24 @@ export const DOM = {
     // Tabs
     markdownTab: document.getElementById("tab-markdown"),
     previewTab: document.getElementById("tab-preview"),
+    // Modal Elements
+    apiKeysModal: document.getElementById("api-keys-modal"),
+    modalGithubTokenInput: document.getElementById("modal-github-token"),
+    modalGeminiTokenInput: document.getElementById("modal-gemini-token"),
+    modalSaveKeysBtn: document.getElementById("modal-save-keys-btn"),
+    modalCloseBtn: document.getElementById("modal-close-btn"),
     // Others
     loader: document.getElementById("loader"),
     btnText: document.getElementById("btn-text"),
 };
 
 // --- UI Functions ---
+
+/**
+ * Menampilkan pesan notifikasi sementara di layar.
+ * @param {'success'|'error'|'info'} type - Tipe pesan.
+ * @param {string} message - Isi pesan yang akan ditampilkan.
+ */
 export function showMessage(type, message) {
     DOM.messageContainer.innerHTML = "";
     const colors = {
@@ -38,9 +56,19 @@ export function showMessage(type, message) {
     div.className = `p-4 rounded-lg border ${colors[type] || colors.info}`;
     div.textContent = message;
     DOM.messageContainer.appendChild(div);
-    setTimeout(() => div.remove(), 5000);
+    setTimeout(() => {
+        if (div) {
+          div.style.transition = "opacity 0.5s";
+          div.style.opacity = "0";
+          setTimeout(() => div.remove(), 500);
+        }
+    }, 4000);
 }
 
+/**
+ * Mengatur status loading pada tombol Generate.
+ * @param {boolean} isLoading - True jika sedang loading.
+ */
 export function setLoading(isLoading) {
     DOM.generateBtn.disabled = isLoading;
     DOM.btnText.textContent = isLoading ? "Memproses..." : "Generate";
@@ -51,14 +79,88 @@ export function setLoading(isLoading) {
     }
 }
 
+/**
+ * Mengganti tab antara editor Markdown dan Preview.
+ * @param {'markdown'|'preview'} tabName - Nama tab yang akan diaktifkan.
+ */
 export function switchTab(tabName) {
-    // (Fungsi switchTab sama seperti sebelumnya)
+    const isMarkdown = tabName === "markdown";
+    DOM.markdownPane.classList.toggle("hidden", !isMarkdown);
+    DOM.previewPane.classList.toggle("hidden", isMarkdown);
+
+    DOM.markdownTab.classList.toggle("bg-gray-800", isMarkdown);
+    DOM.markdownTab.classList.toggle("text-white", isMarkdown);
+    DOM.markdownTab.classList.toggle("text-gray-400", !isMarkdown);
+    DOM.markdownTab.classList.toggle("hover:bg-gray-800/50", !isMarkdown);
+
+    DOM.previewTab.classList.toggle("bg-gray-800", !isMarkdown);
+    DOM.previewTab.classList.toggle("text-white", !isMarkdown);
+    DOM.previewTab.classList.toggle("text-gray-400", isMarkdown);
+    DOM.previewTab.classList.toggle("hover:bg-gray-800/50", isMarkdown);
+
+    if (!isMarkdown) {
+        renderPreview();
+    }
 }
 
+/**
+ * Merender teks Markdown dari editor ke panel preview.
+ */
 export function renderPreview() {
-    // (Fungsi renderPreview sama seperti sebelumnya)
+    let markdownText = extractMarkdownFromContent(DOM.readmeOutput).trim();
+
+    if (markdownText.startsWith("```markdown") && markdownText.endsWith("```")) {
+        markdownText = markdownText.replace(/^```markdown/, "").replace(/```$/, "").trim();
+    }
+    
+    // Gunakan Marked.js untuk mengubah Markdown ke HTML
+    DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText)}</div>`;
 }
 
+/**
+ * Menambah input field baru untuk URL gambar.
+ * @param {boolean} isFirst - True jika ini adalah input pertama (tanpa tombol hapus).
+ */
 export function addNewImageInput(isFirst = false) {
-    // (Fungsi addNewImageInput sama seperti sebelumnya)
+    const div = document.createElement("div");
+    div.className = "flex items-center gap-3";
+    div.innerHTML = `<input type="text" class="image-url-input w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500" placeholder="https://.../image.png"> ${
+      !isFirst
+        ? '<button class="remove-image-btn text-red-400 hover:text-red-300 font-bold text-xl">&times;</button>'
+        : ""
+    }`;
+    DOM.imageInputsContainer.appendChild(div);
+    if (!isFirst) {
+        div.querySelector(".remove-image-btn").addEventListener("click", () => div.remove());
+    }
+}
+
+/**
+ * Menampilkan atau menyembunyikan modal API keys.
+ * @param {boolean} show - True untuk menampilkan, false untuk menyembunyikan.
+ */
+export function toggleModal(show) {
+    if (show) {
+        DOM.apiKeysModal.classList.remove("hidden");
+    } else {
+        DOM.apiKeysModal.classList.add("hidden");
+    }
+}
+
+/**
+ * Mengekstrak teks mentah dari elemen contenteditable.
+ * @param {HTMLElement} element - Elemen yang akan diekstrak.
+ * @returns {string} Teks mentah.
+ */
+function extractMarkdownFromContent(element) {
+    const html = element.innerHTML;
+    return html
+        .replace(/<div>/g, "\n")
+        .replace(/<br>/g, "\n")
+        .replace(/<\/div>/g, "")
+        .replace(/&nbsp;/g, " ")
+        .replace(/&gt;/g, ">")
+        .replace(/&lt;/g, "<")
+        .replace(/&amp;/g, "&")
+        .trim();
 }
