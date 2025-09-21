@@ -105,7 +105,11 @@ export function switchTab(tabName) {
  */
 export function renderPreview() {
     let markdownText = DOM.readmeOutput.innerText.trim();
-    DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText)}</div>`;
+    
+    // THE FIX: Added { breaks: true } to respect single line breaks, making the preview match GitHub.
+    const options = { breaks: true };
+
+    DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText, options)}</div>`;
 }
 
 /**
