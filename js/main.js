@@ -6,9 +6,6 @@ import { DOM, showMessage, setLoading, switchTab, renderPreview, addNewImageInpu
 document.addEventListener("DOMContentLoaded", () => {
     let tags = new Set();
     
-    /**
-     * Initializes the application when the page is fully loaded.
-     */
     function initializeApp() {
         DOM.githubTokenInput.value = localStorage.getItem("githubApiToken") || "";
         DOM.geminiTokenInput.value = localStorage.getItem("geminiApiKey") || "";
@@ -19,9 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * The main function to handle the README generation process.
-     */
     async function handleGenerateReadme() {
         const userGeminiKey = localStorage.getItem("geminiApiKey");
         const userGithubKey = localStorage.getItem("githubApiToken");
@@ -42,10 +36,19 @@ document.addEventListener("DOMContentLoaded", () => {
         switchTab("markdown");
 
         try {
-            const [repoDetails, repoTree] = await Promise.all([
-                fetchGithubApi(`https://api.github.com/repos/${repoPath}`),
-                fetchGithubApi(`https://api.github.com/repos/${repoPath}/git/trees/main?recursive=1`),
-            ]);
+            // --- MAJOR FIX START ---
+            // 1. Fetch main repo details first to get the default branch name
+            const repoDetails = await fetchGithubApi(`https://api.github.com/repos/${repoPath}`);
+            
+            // 2. Get the actual default branch name (e.g., 'main' or 'master')
+            const defaultBranch = repoDetails.default_branch;
+            if (!defaultBranch) {
+                throw new Error("Could not determine the default branch for this repository.");
+            }
+
+            // 3. Fetch the file tree using the correct branch name
+            const repoTree = await fetchGithubApi(`https://api.github.com/repos/${repoPath}/git/trees/${defaultBranch}?recursive=1`);
+            // --- MAJOR FIX END ---
 
             const imageUrls = Array.from(document.querySelectorAll(".image-url-input"))
                 .map(input => input.value.trim()).filter(Boolean);
@@ -66,12 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /**
-     * Saves an API token to localStorage.
-     * @param {string} key - 'githubApiToken' or 'geminiApiKey'.
-     * @param {string} value - The token value.
-     * @param {string} name - The display name ('GitHub' or 'Gemini').
-     */
     function saveToken(key, value, name) {
         if (value && value.trim()) {
             localStorage.setItem(key, value);
@@ -82,9 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
     
-    /**
-     * Adds a new tag from the input to the container.
-     */
     function addTag() {
         const tagText = DOM.tagsInput.value.trim().toLowerCase();
         if (tagText && !tags.has(tagText)) {
@@ -98,28 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.tagsInput.focus();
     }
 
-    /**
-     * Strips the markdown wrapper (```markdown ... ```) from the AI's response text.
-     * @param {string} text - The text to clean.
-     * @returns {string} The cleaned text.
-     */
     function stripMarkdownWrapper(text) {
         return text.replace(/^```markdown\s*/, "").replace(/```$/, "").trim();
     }
 
-    /**
-     * Parses a GitHub URL to extract the 'user/repo' path.
-     * @param {string} url - The full GitHub URL.
-     * @returns {string|null} The repo path or null if invalid.
-     */
     function parseGithubUrl(url) {
         const match = url.match(/github\.com\/([^\/]+\/[^\/]+)(\/|$)/);
         return match ? match[1].replace(".git", "") : null;
     }
 
-    /**
-     * Copies the generated README text from the editor to the clipboard.
-     */
     function copyToClipboard() {
         const rawText = DOM.readmeOutput.innerText;
         try {
@@ -170,6 +151,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     DOM.modalCloseBtn.addEventListener("click", () => toggleModal(false));
     
-    // --- Run Initialization ---
     initializeApp();
 });
