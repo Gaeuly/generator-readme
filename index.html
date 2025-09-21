@@ -21,7 +21,7 @@
                 <img src="logo-web.png" alt="Logo" class="w-20 h-20" />
                 <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">README.md Generator</h1>
             </div>
-            <p class="text-gray-400 text-sm md:text-base">Buat README.md profesional dengan konteks yang lebih baik menggunakan AI.</p>
+            <p class="text-gray-400 text-sm md:text-base">Make README.md professional with AI</p>
         </div>
 
         <!-- Input Section -->
@@ -35,22 +35,22 @@
             </div>
             
             <div class="bg-gray-900/50 p-4 rounded-lg">
-                <label for="language-select" class="block text-sm font-medium text-gray-300 mb-2">Bahasa Output</label>
+                <label for="language-select" class="block text-sm font-medium text-gray-300 mb-2">Language Output</label>
                 <select id="language-select" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                    <option value="id">Bahasa Indonesia</option>
+                    <option value="id">Indonesia</option>
                     <option value="en">English</option>
                 </select>
             </div>
 
             <div class="bg-gray-900/50 p-4 rounded-lg">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Link Gambar/GIF Dokumentasi</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Link Picture/GIF Documentation</label>
                 <div id="image-inputs-container" class="space-y-3"></div>
-                <button id="add-image-btn" class="mt-3 text-sm bg-cyan-800 hover:bg-cyan-700 text-cyan-200 font-semibold py-2 px-4 rounded-lg transition">+ Tambah Gambar</button>
+                <button id="add-image-btn" class="mt-3 text-sm bg-cyan-800 hover:bg-cyan-700 text-cyan-200 font-semibold py-2 px-4 rounded-lg transition">+ Add picture</button>
             </div>
             
             <!-- TAMBAHAN: Tombol + untuk mobile -->
             <div class="bg-gray-900/50 p-4 rounded-lg">
-                <label for="tags-input" class="block text-sm font-medium text-gray-300 mb-2">Tag Konteks (Enter atau Tekan +)</label>
+                <label for="tags-input" class="block text-sm font-medium text-gray-300 mb-2">Tag Konteks (Enter or Click +)</label>
                 <div id="tags-container" class="mb-2"></div>
                 <div class="flex gap-2">
                     <input type="text" id="tags-input" placeholder="e.g., react, nodejs..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
@@ -61,7 +61,7 @@
             <!-- TAMBAHAN: Mengembalikan Pengaturan Lanjutan -->
             <details class="group">
                 <summary class="cursor-pointer text-sm text-gray-400 hover:text-cyan-400 transition">
-                    <span class="font-medium">Pengaturan Lanjutan</span>
+                    <span class="font-medium">Next Settings</span>
                 </summary>
                 <div class="mt-3 bg-gray-900/50 p-4 rounded-lg space-y-4">
                     <div>
@@ -89,41 +89,41 @@
                 <button id="tab-markdown" class="py-2 px-4 font-semibold text-white bg-gray-800 rounded-t-lg">Markdown</button>
                 <button id="tab-preview" class="py-2 px-4 font-semibold text-gray-400 hover:bg-gray-800/50 rounded-t-lg">Preview</button>
                 <div class="flex-grow"></div>
-                <button id="copyBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold my-auto py-1 px-3 rounded-lg text-sm transition">Salin Teks</button>
+                <button id="copyBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold my-auto py-1 px-3 rounded-lg text-sm transition">Copy</button>
             </div>
             <div id="pane-markdown" class="mt-4">
                 <div id="readmeOutput" contenteditable="true" class="w-full min-h-[480px] bg-gray-800 border-2 border-gray-700 rounded-b-lg p-4 text-gray-200 font-mono text-sm whitespace-pre-wrap" placeholder="Hasil Markdown akan muncul di sini..."></div>
             </div>
             <div id="pane-preview" class="hidden markdown-body max-w-none w-full min-h-[480px] overflow-y-auto">
-                <p class="text-gray-500">Pratinjau akan muncul di sini...</p>
+                <p class="text-gray-500">Preview will appear here</p>
             </div>
         </div>
 
         <div class="text-center mt-6 text-gray-500 text-sm">
-            Dibuat dengan <span class="text-red-500">&hearts;</span> AI oleh <a href="https://github.com/emRival" target="_blank" class="text-cyan-400 hover:underline">@emRival</a>
+            Made with <span class="text-red-500">&hearts;</span> by <a href="https://github.com/Gaeuly" target="_blank" class="text-cyan-400 hover:underline">@gaeuly</a>
         </div>
     </div>
     
     <!-- TAMBAHAN: Mengembalikan Modal API Keys -->
     <div id="api-keys-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
       <div class="bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-6 transform transition-all">
-        <h2 class="text-2xl font-bold text-cyan-400">Pengaturan API Keys</h2>
-        <p class="text-gray-300">Aplikasi ini membutuhkan API key untuk berfungsi. Key disimpan aman di browser Anda dan tidak dikirim ke server kami.</p>
+        <h2 class="text-2xl font-bold text-cyan-400">API Keys</h2>
+        <p class="text-gray-300">This application requires an API key to function. The key is stored securely in your browser and is not sent to our servers.</p>
         <div class="space-y-4">
           <div>
             <label for="modal-github-token" class="block text-sm font-medium text-gray-300 mb-1">GitHub Personal Access Token</label>
             <input type="password" id="modal-github-token" placeholder="github_pat_..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white" />
-            <p class="mt-2 text-xs text-gray-500">Dibutuhkan untuk mengambil data repo. <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-cyan-500 hover:underline">Buat token di sini</a>.</p>
+            <p class="mt-2 text-xs text-gray-500">Needed to get repo <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-cyan-500 hover:underline">Buat token di sini</a>.</p>
           </div>
           <div>
             <label for="modal-gemini-token" class="block text-sm font-medium text-gray-300 mb-1">Gemini API Key</label>
             <input type="password" id="modal-gemini-token" placeholder="AIza..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white" />
-            <p class="mt-2 text-xs text-gray-500">Dibutuhkan untuk generate konten. <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-500 hover:underline">Dapatkan key di sini</a>.</p>
+            <p class="mt-2 text-xs text-gray-500">Required to generate content <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-500 hover:underline">Get key in here</a>.</p>
           </div>
         </div>
         <div class="flex flex-col sm:flex-row gap-4">
-          <button id="modal-save-keys-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Simpan & Lanjutkan</button>
-          <button id="modal-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Tutup</button>
+          <button id="modal-save-keys-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Save & Next</button>
+          <button id="modal-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Close</button>
         </div>
       </div>
     </div>
