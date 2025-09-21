@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI GITHUB README.MD GENERATOR</title>
+    <meta name="description" content="README.md Generator gratis dan cerdas berbasis AI dari GitHub repository. Buat README yang profesional dan menarik dalam satu klik."/>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css" />
+    
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+        <div class="text-center mb-6 flex flex-col items-center justify-center gap-2">
+            <div class="flex items-center gap-3">
+                <img src="logo-web.png" alt="Logo" class="w-20 h-20" />
+                <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">README.md Generator</h1>
+            </div>
+            <p class="text-gray-400 text-sm md:text-base">Buat README.md profesional dengan konteks yang lebih baik menggunakan AI.</p>
+        </div>
+
+        <div class="space-y-4 mb-4">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="githubUrl" placeholder="Tempel URL Repositori GitHub di sini..." class="flex-grow bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" />
+                <button id="generateBtn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center transition shadow-lg shadow-cyan-500/20">
+                    <span id="btn-text">Generate</span>
+                    <div id="loader" class="lds-dual-ring hidden ml-2"></div>
+                </button>
+            </div>
+            
+            <div class="bg-gray-900/50 p-4 rounded-lg">
+                <label for="language-select" class="block text-sm font-medium text-gray-300 mb-2">Bahasa Output</label>
+                <select id="language-select" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                    <option value="id">Bahasa Indonesia</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+
+            <div class="bg-gray-900/50 p-4 rounded-lg">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Link Gambar/GIF Dokumentasi</label>
+                <div id="image-inputs-container" class="space-y-3"></div>
+                <button id="add-image-btn" class="mt-3 text-sm bg-cyan-800 hover:bg-cyan-700 text-cyan-200 font-semibold py-2 px-4 rounded-lg transition">+ Tambah Gambar</button>
+            </div>
+            
+            <div class="bg-gray-900/50 p-4 rounded-lg">
+                <label for="tags-input" class="block text-sm font-medium text-gray-300 mb-2">Tag Konteks (Tekan Enter)</label>
+                <div id="tags-container" class="mb-2"></div>
+                <input type="text" id="tags-input" placeholder="e.g., react, nodejs, data visualization..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
+            </div>
+
+            </div>
+
+        <div class="text-center mt-6 text-gray-500 text-sm">
+            Dibuat dengan <span class="text-red-500">&hearts;</span> AI oleh <a href="https://github.com/emRival" target="_blank" class="text-cyan-400 hover:underline">@emRival</a>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

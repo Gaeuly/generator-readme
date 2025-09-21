@@ -1,0 +1,84 @@
+body {
+    font-family: "Inter", sans-serif;
+}
+
+.markdown-body ul {
+    list-style-type: disc;
+    padding-left: 1.5em;
+}
+.markdown-body hr {
+    border: none;
+    border-top: 1px solid #444;
+    margin: 1.5rem 0;
+}
+.markdown-body p {
+    margin-bottom: 1rem;
+}
+.lds-dual-ring {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+.lds-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    border-color: #fff transparent #fff transparent;
+    animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+details > summary { list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #0891b2;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+.tag-remove-btn {
+    margin-left: 0.5rem;
+    width: 1rem;
+    height: 1rem;
+    background-color: #164e63;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+    transition: background-color 0.2s;
+}
+.tag-remove-btn:hover { background-color: #1e3a8a; }
+
+#readmeOutput {
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+#pane-preview.markdown-body {
+    box-sizing: border-box;
+    background-color: #0d1117;
+    padding: 2.5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+}
+@media (max-width: 767px) {
+    #pane-preview.markdown-body { padding: 1rem; }
+}
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+}
