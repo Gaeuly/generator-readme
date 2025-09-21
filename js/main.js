@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let tags = new Set();
     
     /**
-     * Inisialisasi aplikasi saat halaman selesai dimuat.
+     * Initializes the application when the page is fully loaded.
      */
     function initializeApp() {
         DOM.githubTokenInput.value = localStorage.getItem("githubApiToken") || "";
@@ -20,23 +20,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /**
-     * Fungsi utama untuk men-generate README.
+     * The main function to handle the README generation process.
      */
     async function handleGenerateReadme() {
         const userGeminiKey = localStorage.getItem("geminiApiKey");
         const userGithubKey = localStorage.getItem("githubApiToken");
 
         if (!userGithubKey || !userGeminiKey) {
-            showMessage("error", "GitHub Token dan Gemini API Key diperlukan.");
+            showMessage("error", "GitHub Token and Gemini API Key are required.");
             toggleModal(true);
             return;
         }
 
         const url = DOM.githubUrlInput.value.trim();
-        if (!url) return showMessage("error", "URL GitHub tidak boleh kosong.");
+        if (!url) return showMessage("error", "GitHub URL cannot be empty.");
         
         const repoPath = parseGithubUrl(url);
-        if (!repoPath) return showMessage("error", "Format URL GitHub tidak valid.");
+        if (!repoPath) return showMessage("error", "Invalid GitHub URL format.");
 
         setLoading(true);
         switchTab("markdown");
@@ -54,33 +54,36 @@ document.addEventListener("DOMContentLoaded", () => {
             const prompt = createPrompt(repoDetails, repoTree.tree.map(f => f.path), imageUrls, Array.from(tags), selectedLang);
             const generatedReadme = await callGeminiApi(prompt, userGeminiKey);
             
-            DOM.readmeOutput.innerHTML = stripMarkdownWrapper(generatedReadme);
+            DOM.readmeOutput.innerText = stripMarkdownWrapper(generatedReadme);
             switchTab("preview");
-            showMessage("success", "README.md berhasil dibuat! Cek tab 'Preview'.");
+            showMessage("success", "README.md generated successfully! Check the 'Preview' tab.");
 
         } catch (error) {
             showMessage("error", error.message);
-            DOM.readmeOutput.innerText = `# Gagal Membuat README\n\n**Error:** ${error.message}`;
+            DOM.readmeOutput.innerText = `# Failed to Generate README\n\n**Error:** ${error.message}`;
         } finally {
             setLoading(false);
         }
     }
 
     /**
-     * Menyimpan token API ke localStorage.
+     * Saves an API token to localStorage.
+     * @param {string} key - 'githubApiToken' or 'geminiApiKey'.
+     * @param {string} value - The token value.
+     * @param {string} name - The display name ('GitHub' or 'Gemini').
      */
     function saveToken(key, value, name) {
         if (value && value.trim()) {
             localStorage.setItem(key, value);
-            showMessage("success", `Token API ${name} berhasil disimpan.`);
+            showMessage("success", `${name} API Token saved successfully.`);
         } else {
             localStorage.removeItem(key);
-            showMessage("info", `Token API ${name} dihapus.`);
+            showMessage("info", `${name} API Token removed.`);
         }
     }
     
     /**
-     * Menambahkan tag baru dari input ke container.
+     * Adds a new tag from the input to the container.
      */
     function addTag() {
         const tagText = DOM.tagsInput.value.trim().toLowerCase();
@@ -95,23 +98,36 @@ document.addEventListener("DOMContentLoaded", () => {
         DOM.tagsInput.focus();
     }
 
+    /**
+     * Strips the markdown wrapper (```markdown ... ```) from the AI's response text.
+     * @param {string} text - The text to clean.
+     * @returns {string} The cleaned text.
+     */
     function stripMarkdownWrapper(text) {
-        return text.replace(/^```markdown/, "").replace(/```$/, "").trim();
+        return text.replace(/^```markdown\s*/, "").replace(/```$/, "").trim();
     }
 
+    /**
+     * Parses a GitHub URL to extract the 'user/repo' path.
+     * @param {string} url - The full GitHub URL.
+     * @returns {string|null} The repo path or null if invalid.
+     */
     function parseGithubUrl(url) {
         const match = url.match(/github\.com\/([^\/]+\/[^\/]+)(\/|$)/);
         return match ? match[1].replace(".git", "") : null;
     }
 
+    /**
+     * Copies the generated README text from the editor to the clipboard.
+     */
     function copyToClipboard() {
-        let rawText = DOM.readmeOutput.innerText;
+        const rawText = DOM.readmeOutput.innerText;
         try {
             navigator.clipboard.writeText(rawText).then(() => {
-                showMessage("success", "Teks berhasil disalin.");
+                showMessage("success", "Copied to clipboard!");
             });
         } catch (err) {
-            showMessage("error", "Gagal menyalin teks.");
+            showMessage("error", "Failed to copy text.");
         }
     }
 
@@ -120,9 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
     DOM.copyBtn.addEventListener("click", copyToClipboard);
     DOM.addImageBtn.addEventListener("click", () => addNewImageInput(false));
     
-    // PERBAIKAN BUG: Memastikan kedua listener untuk menambah tag ada
     DOM.tagsInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addTag(); } });
-    DOM.addTagBtn.addEventListener("click", addTag); // Baris ini yang paling penting untuk memperbaiki bug
+    DOM.addTagBtn.addEventListener("click", addTag);
 
     DOM.tagsContainer.addEventListener("click", e => {
         if (e.target.classList.contains("tag-remove-btn")) {
@@ -150,11 +165,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (githubKey && geminiKey) {
             toggleModal(false);
         } else {
-            showMessage("error", "Kedua API key wajib diisi.");
+            showMessage("error", "Both API keys are required to continue.");
         }
     });
     DOM.modalCloseBtn.addEventListener("click", () => toggleModal(false));
     
+    // --- Run Initialization ---
     initializeApp();
 });
-

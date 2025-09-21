@@ -1,7 +1,6 @@
 // js/ui.js
 
-// --- DOM Element Exports ---
-// Mengumpulkan semua elemen DOM yang akan dimanipulasi agar mudah diakses.
+// Gathers all DOM elements for easy access.
 export const DOM = {
     // Buttons
     generateBtn: document.getElementById("generateBtn"),
@@ -38,12 +37,10 @@ export const DOM = {
     btnText: document.getElementById("btn-text"),
 };
 
-// --- UI Functions ---
-
 /**
- * Menampilkan pesan notifikasi sementara di layar.
- * @param {'success'|'error'|'info'} type - Tipe pesan.
- * @param {string} message - Isi pesan yang akan ditampilkan.
+ * Displays a temporary notification message on the screen.
+ * @param {'success'|'error'|'info'} type - The type of message.
+ * @param {string} message - The content of the message to display.
  */
 export function showMessage(type, message) {
     DOM.messageContainer.innerHTML = "";
@@ -66,22 +63,22 @@ export function showMessage(type, message) {
 }
 
 /**
- * Mengatur status loading pada tombol Generate.
- * @param {boolean} isLoading - True jika sedang loading.
+ * Sets the loading state on the Generate button.
+ * @param {boolean} isLoading - True if loading.
  */
 export function setLoading(isLoading) {
     DOM.generateBtn.disabled = isLoading;
-    DOM.btnText.textContent = isLoading ? "Memproses..." : "Generate";
+    DOM.btnText.textContent = isLoading ? "Generating..." : "Generate";
     DOM.loader.classList.toggle("hidden", !isLoading);
     if (isLoading) {
-        DOM.readmeOutput.innerText = "Menganalisis repositori dan menghasilkan README.md, mohon tunggu...";
+        DOM.readmeOutput.innerText = "Analyzing repository and generating README.md, please wait...";
         renderPreview();
     }
 }
 
 /**
- * Mengganti tab antara editor Markdown dan Preview.
- * @param {'markdown'|'preview'} tabName - Nama tab yang akan diaktifkan.
+ * Switches the view between the Markdown editor and the Preview pane.
+ * @param {'markdown'|'preview'} tabName - The name of the tab to activate.
  */
 export function switchTab(tabName) {
     const isMarkdown = tabName === "markdown";
@@ -104,22 +101,16 @@ export function switchTab(tabName) {
 }
 
 /**
- * Merender teks Markdown dari editor ke panel preview.
+ * Renders the Markdown text from the editor into the preview pane.
  */
 export function renderPreview() {
-    let markdownText = extractMarkdownFromContent(DOM.readmeOutput).trim();
-
-    if (markdownText.startsWith("```markdown") && markdownText.endsWith("```")) {
-        markdownText = markdownText.replace(/^```markdown/, "").replace(/```$/, "").trim();
-    }
-    
-    // Gunakan Marked.js untuk mengubah Markdown ke HTML
+    let markdownText = DOM.readmeOutput.innerText.trim();
     DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText)}</div>`;
 }
 
 /**
- * Menambah input field baru untuk URL gambar.
- * @param {boolean} isFirst - True jika ini adalah input pertama (tanpa tombol hapus).
+ * Adds a new input field for an image URL.
+ * @param {boolean} isFirst - True if this is the first input (no remove button).
  */
 export function addNewImageInput(isFirst = false) {
     const div = document.createElement("div");
@@ -136,31 +127,9 @@ export function addNewImageInput(isFirst = false) {
 }
 
 /**
- * Menampilkan atau menyembunyikan modal API keys.
- * @param {boolean} show - True untuk menampilkan, false untuk menyembunyikan.
+ * Shows or hides the API keys modal.
+ * @param {boolean} show - True to show, false to hide.
  */
 export function toggleModal(show) {
-    if (show) {
-        DOM.apiKeysModal.classList.remove("hidden");
-    } else {
-        DOM.apiKeysModal.classList.add("hidden");
-    }
-}
-
-/**
- * Mengekstrak teks mentah dari elemen contenteditable.
- * @param {HTMLElement} element - Elemen yang akan diekstrak.
- * @returns {string} Teks mentah.
- */
-function extractMarkdownFromContent(element) {
-    const html = element.innerHTML;
-    return html
-        .replace(/<div>/g, "\n")
-        .replace(/<br>/g, "\n")
-        .replace(/<\/div>/g, "")
-        .replace(/&nbsp;/g, " ")
-        .replace(/&gt;/g, ">")
-        .replace(/&lt;/g, "<")
-        .replace(/&amp;/g, "&")
-        .trim();
+    DOM.apiKeysModal.classList.toggle("hidden", !show);
 }

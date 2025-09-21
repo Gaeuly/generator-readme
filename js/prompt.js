@@ -1,9 +1,8 @@
 // js/prompt.js
 
-export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'id') {
+export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en') {
     const isIndonesian = lang === 'id';
 
-    // (Logika galeri gambar tidak berubah)
     let imageInstruction = "";
     if (imageUrls.length > 0) {
         let imageMarkdown = `<p align="center"><img src="${imageUrls[0]}" alt="Project Preview" width="80%"></p>`;
@@ -15,46 +14,40 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'id') {
     let tagInstruction = "";
     if (tags.length > 0) {
         tagInstruction = isIndonesian
-            ? `\n**Konteks Tambahan dari Pengguna (Referensi Kuat!):**\n- Tags: ${tags.join(", ")}\n`
-            : `\n**Additional Context from User (Strong Reference!):**\n- Tags: ${tags.join(", ")}\n`;
+            ? `\n**Konteks Tambahan dari Pengguna:**\n- Tags: ${tags.join(", ")}\n`
+            : `\n**Additional Context from User:**\n- Tags: ${tags.join(", ")}\n`;
     }
     
     let sectionCounter = 4;
     if (imageUrls.length > 0) sectionCounter++;
 
-    // Teks multi-bahasa dengan perintah yang sudah diperbaiki
     const texts = {
         id: {
-            intro: `Sebagai seorang ahli rekayasa perangkat lunak, buatkan file README.md yang SANGAT BAGUS, profesional, dan jelas untuk repositori GitHub berikut. Gunakan emoji yang relevan untuk setiap bagian.`,
-            // PERBAIKAN 1: Minta badge untuk tags juga
-            badges: `2.  **Badges**: Sertakan badge dari Shields.io untuk bahasa utama DAN untuk teknologi relevan yang disebutkan di Tags (misal: React, Vue, HTML, CSS). Posisikan di tengah.`,
-            description: `3.  **Deskripsi 📝**: Jelaskan proyek dalam 1-2 paragraf yang menarik.`,
+            intro: `Sebagai seorang ahli rekayasa perangkat lunak, buatkan file README.md yang profesional dan jelas untuk repositori GitHub berikut. Gunakan emoji yang relevan.`,
+            badges: `2.  **Badges**: Sertakan badge dari Shields.io untuk bahasa utama DAN untuk teknologi yang disebutkan di Tags.`,
+            description: `3.  **Deskripsi 📝**: Jelaskan proyek dalam 1-2 paragraf.`,
             features: `${sectionCounter++}.  **Fitur Utama ✨**: Buat daftar 3-5 fitur unggulan.`,
             tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Sebutkan teknologi utama.`,
-            // PERBAIKAN 2: Perintahkan penggunaan backticks `...`
-            install: `${sectionCounter++}.  **Instalasi & Menjalankan 🚀**: Berikan panduan langkah-demi-langkah. PENTING: Selalu bungkus semua perintah shell (seperti 'git clone', 'cd', 'npm install') dan nama file dengan backticks tunggal (\`...\`) agar ditampilkan sebagai kode.`,
+            // REVISI UTAMA DI SINI
+            install: `${sectionCounter++}.  **Instalasi & Menjalankan 🚀**: Berikan panduan langkah-demi-langkah. PENTING: Setiap perintah terminal (seperti 'git clone', 'npm install') HARUS berada di dalam blok kodenya sendiri menggunakan triple backticks (\`\`\`bash ... \`\`\`) agar mudah disalin, persis seperti contoh di GitHub.`,
             contribute: `${sectionCounter++}. **Cara Berkontribusi 🤝**: Jelaskan cara berkontribusi.`,
-            license: `${sectionCounter++}. **Lisensi 📄**: Sebutkan lisensi proyek.`,
-            outro: `Pastikan hasil AKHIR HANYA berupa konten Markdown mentah, tanpa penjelasan atau blok kode pembungkus.`
+            outro: `Pastikan hasil AKHIR HANYA berupa konten Markdown mentah, tanpa penjelasan pembuka atau penutup.`
         },
         en: {
-            intro: `As an expert software engineer, create an EXCELLENT, professional, and clear README.md file for the following GitHub repository. Use relevant emojis for each section.`,
-            // FIX 1: Ask for badges from tags too
-            badges: `2.  **Badges**: Include badges from Shields.io for the main language AND for relevant technologies mentioned in the Tags (e.g., React, Vue, HTML, CSS). Center-align them.`,
-            description: `3.  **Description 📝**: Explain the project in 1-2 engaging paragraphs.`,
+            intro: `As an expert software engineer, create a professional and clear README.md file for the following GitHub repository. Use relevant emojis.`,
+            badges: `2.  **Badges**: Include badges from Shields.io for the main language AND for relevant technologies mentioned in the Tags.`,
+            description: `3.  **Description 📝**: Explain the project in 1-2 paragraphs.`,
             features: `${sectionCounter++}.  **Key Features ✨**: List 3-5 standout features.`,
             tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Mention the main technologies.`,
-            // FIX 2: Enforce the use of backticks `...`
-            install: `${sectionCounter++}.  **Installation & Running 🚀**: Provide a step-by-step guide. IMPORTANT: Always wrap all shell commands (like 'git clone', 'cd', 'npm install') and filenames in single backticks (\`...\`) to render them as code.`,
+            // MAJOR REVISION HERE
+            install: `${sectionCounter++}.  **Installation & Running 🚀**: Provide a step-by-step guide. IMPORTANT: Each terminal command (like 'git clone', 'npm install') MUST be in its own code block using triple backticks (\`\`\`bash ... \`\`\`) for easy copying, just like a professional GitHub example.`,
             contribute: `${sectionCounter++}. **How to Contribute 🤝**: Explain how to contribute.`,
-            license: `${sectionCounter++}. **License 📄**: State the project's license.`,
-            outro: `Ensure the FINAL output is ONLY the raw Markdown content, without any explanations or wrapper code blocks.`
+            outro: `Ensure the FINAL output is ONLY the raw Markdown content, without any introductory or concluding remarks.`
         }
     };
     
     const t = texts[lang];
 
-    // Prompt lengkap yang dikirim ke AI
     return `${t.intro}
         Repository Data:
         - Name: ${repoDetails.name}
@@ -71,11 +64,6 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'id') {
         ${t.features}
         ${t.tech}
         ${t.install}
-            - 1. Clone the repository: \`git clone ${repoDetails.html_url}\`
-            - 2. Navigate to the directory: \`cd ${repoDetails.name}\`
-            - 3. Install dependencies: (Suggest the correct command based on files).
-            - 4. Run the project: (Suggest the most common command).
         ${t.contribute}
-        ${t.license} (\`${repoDetails.license ? repoDetails.license.name : "Not specified"}\`).
         ${t.outro}`;
 }
