@@ -5,6 +5,7 @@ export const DOM = {
     // Buttons
     generateBtn: document.getElementById("generateBtn"),
     copyBtn: document.getElementById("copyBtn"),
+    copyLicenseBtn: document.getElementById("copyLicenseBtn"), // BARU
     addImageBtn: document.getElementById("add-image-btn"),
     addTagBtn: document.getElementById("add-tag-btn"),
     saveGithubTokenBtn: document.getElementById("save-github-token-btn"),
@@ -13,6 +14,7 @@ export const DOM = {
     githubUrlInput: document.getElementById("githubUrl"),
     tagsInput: document.getElementById("tags-input"),
     languageSelect: document.getElementById("language-select"),
+    licenseSelect: document.getElementById("license-select"), // BARU
     githubTokenInput: document.getElementById("githubToken"),
     geminiTokenInput: document.getElementById("geminiToken"),
     // Containers
@@ -21,11 +23,14 @@ export const DOM = {
     tagsContainer: document.getElementById("tags-container"),
     // Output Panes
     readmeOutput: document.getElementById("readmeOutput"),
+    licenseOutput: document.getElementById("licenseOutput"), // BARU
     previewPane: document.getElementById("pane-preview"),
     markdownPane: document.getElementById("pane-markdown"),
+    licensePane: document.getElementById("pane-license"), // BARU
     // Tabs
     markdownTab: document.getElementById("tab-markdown"),
     previewTab: document.getElementById("tab-preview"),
+    licenseTab: document.getElementById("tab-license"), // BARU
     // Modal Elements
     apiKeysModal: document.getElementById("api-keys-modal"),
     modalGithubTokenInput: document.getElementById("modal-github-token"),
@@ -37,11 +42,6 @@ export const DOM = {
     btnText: document.getElementById("btn-text"),
 };
 
-/**
- * Displays a temporary notification message on the screen.
- * @param {'success'|'error'|'info'} type - The type of message.
- * @param {string} message - The content of the message to display.
- */
 export function showMessage(type, message) {
     DOM.messageContainer.innerHTML = "";
     const colors = {
@@ -62,60 +62,57 @@ export function showMessage(type, message) {
     }, 4000);
 }
 
-/**
- * Sets the loading state on the Generate button.
- * @param {boolean} isLoading - True if loading.
- */
 export function setLoading(isLoading) {
     DOM.generateBtn.disabled = isLoading;
     DOM.btnText.textContent = isLoading ? "Generating..." : "Generate";
     DOM.loader.classList.toggle("hidden", !isLoading);
     if (isLoading) {
         DOM.readmeOutput.innerText = "Analyzing repository and generating README.md, please wait...";
+        DOM.licenseOutput.innerText = "Generating LICENSE file if selected...";
         renderPreview();
     }
 }
 
 /**
- * Switches the view between the Markdown editor and the Preview pane.
- * @param {'markdown'|'preview'} tabName - The name of the tab to activate.
+ * Switches the view between the Markdown, Preview, and License panes.
+ * @param {'markdown'|'preview'|'license'} activeTab - The name of the tab to activate.
  */
-export function switchTab(tabName) {
-    const isMarkdown = tabName === "markdown";
-    DOM.markdownPane.classList.toggle("hidden", !isMarkdown);
-    DOM.previewPane.classList.toggle("hidden", isMarkdown);
+export function switchTab(activeTab) {
+    // Sembunyikan semua pane
+    DOM.markdownPane.classList.add("hidden");
+    DOM.previewPane.classList.add("hidden");
+    DOM.licensePane.classList.add("hidden");
 
-    DOM.markdownTab.classList.toggle("bg-gray-800", isMarkdown);
-    DOM.markdownTab.classList.toggle("text-white", isMarkdown);
-    DOM.markdownTab.classList.toggle("text-gray-400", !isMarkdown);
-    DOM.markdownTab.classList.toggle("hover:bg-gray-800/50", !isMarkdown);
-
-    DOM.previewTab.classList.toggle("bg-gray-800", !isMarkdown);
-    DOM.previewTab.classList.toggle("text-white", !isMarkdown);
-    DOM.previewTab.classList.toggle("text-gray-400", isMarkdown);
-    DOM.previewTab.classList.toggle("hover:bg-gray-800/50", isMarkdown);
-
-    if (!isMarkdown) {
+    // Reset semua style tab
+    const tabs = [DOM.markdownTab, DOM.previewTab, DOM.licenseTab];
+    tabs.forEach(tab => {
+        tab.classList.remove("bg-gray-800", "text-white");
+        tab.classList.add("text-gray-400", "hover:bg-gray-800/50");
+    });
+    
+    // Tampilkan pane dan style tab yang aktif
+    if (activeTab === 'markdown') {
+        DOM.markdownPane.classList.remove("hidden");
+        DOM.markdownTab.classList.add("bg-gray-800", "text-white");
+        DOM.markdownTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
+    } else if (activeTab === 'preview') {
+        DOM.previewPane.classList.remove("hidden");
+        DOM.previewTab.classList.add("bg-gray-800", "text-white");
+        DOM.previewTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
         renderPreview();
+    } else if (activeTab === 'license') {
+        DOM.licensePane.classList.remove("hidden");
+        DOM.licenseTab.classList.add("bg-gray-800", "text-white");
+        DOM.licenseTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
     }
 }
 
-/**
- * Renders the Markdown text from the editor into the preview pane.
- */
 export function renderPreview() {
     let markdownText = DOM.readmeOutput.innerText.trim();
-    
-    // PERBAIKAN JS: Pastikan opsi breaks: true ada di sini.
     const options = { breaks: true };
-
     DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText, options)}</div>`;
 }
 
-/**
- * Adds a new input field for an image URL.
- * @param {boolean} isFirst - True if this is the first input (no remove button).
- */
 export function addNewImageInput(isFirst = false) {
     const div = document.createElement("div");
     div.className = "flex items-center gap-3";
@@ -130,10 +127,6 @@ export function addNewImageInput(isFirst = false) {
     }
 }
 
-/**
- * Shows or hides the API keys modal.
- * @param {boolean} show - True to show, false to hide.
- */
 export function toggleModal(show) {
     DOM.apiKeysModal.classList.toggle("hidden", !show);
-        }
+}

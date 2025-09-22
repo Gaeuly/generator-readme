@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    async function handleGenerateReadme() {
+    async function handleGenerate() {
         const userGeminiKey = localStorage.getItem("geminiApiKey");
         const userGithubKey = localStorage.getItem("githubApiToken");
 
@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!repoPath) return showMessage("error", "Invalid GitHub URL format.");
 
         setLoading(true);
-        switchTab("markdown");
+        switchTab("markdown"); // Default ke tab README
 
         try {
             const repoDetails = await fetchGithubApi(`https://api.github.com/repos/${repoPath}`);
@@ -43,49 +43,39 @@ document.addEventListener("DOMContentLoaded", () => {
             const repoTree = await fetchGithubApi(`https://api.github.com/repos/${repoPath}/git/trees/${defaultBranch}?recursive=1`);
             const filePaths = repoTree.tree.map(f => f.path);
             
-            // --- PERUBAHAN UTAMA DIMULAI DI SINI ---
-            // Daftar prioritas file konfigurasi untuk dideteksi
-            const configFilePriority = [
-                'package.json',      // Node.js
-                'composer.json',     // PHP (Composer)
-                'requirements.txt',  // Python (Pip)
-                'pom.xml',           // Java (Maven)
-                'build.gradle',      // Java/Android (Gradle)
-                'Dockerfile'         // Docker
-            ];
-
-            let configFileContent = null;
-            let configFileName = null;
-
-            // Cari file konfigurasi berdasarkan prioritas
-            for (const fileName of configFilePriority) {
-                const foundFile = repoTree.tree.find(file => file.path.endsWith(fileName));
-                if (foundFile) {
-                    try {
-                        const contentData = await fetchGithubApi(`https://api.github.com/repos/${repoPath}/contents/${foundFile.path}?ref=${defaultBranch}`);
-                        if (contentData.content) {
-                            configFileName = fileName;
-                            configFileContent = atob(contentData.content);
-                            break; // Hentikan pencarian setelah file pertama ditemukan
-                        }
-                    } catch (e) {
-                        console.warn(`Could not fetch ${fileName} content:`, e.message);
-                    }
+            const selectedLicense = DOM.licenseSelect.value;
+            
+            // --- GENERATE LICENSE (jika dipilih) ---
+            if (selectedLicense !== 'none') {
+                try {
+                    const licenseData = await fetchGithubApi(`https://api.github.com/licenses/${selectedLicense}`);
+                    const year = new Date().getFullYear();
+                    const author = repoDetails.owner.login || "[nama author]";
+                    const licenseText = licenseData.body
+                        .replace(/\[year\]/g, year)
+                        .replace(/\[fullname\]/g, author);
+                    DOM.licenseOutput.innerText = licenseText;
+                } catch (licenseError) {
+                    DOM.licenseOutput.innerText = `Failed to fetch license: ${licenseError.message}`;
+                    showMessage("error", `Failed to fetch ${selectedLicense} license details.`);
                 }
+            } else {
+                 DOM.licenseOutput.innerText = "No license selected.";
             }
-            // --- PERUBAHAN UTAMA SELESAI ---
 
+            // --- GENERATE README ---
             const imageUrls = Array.from(document.querySelectorAll(".image-url-input"))
                 .map(input => input.value.trim()).filter(Boolean);
             
             const selectedLang = DOM.languageSelect.value;
-            // Kirim nama dan konten file konfigurasi yang ditemukan ke prompt
-            const prompt = createPrompt(repoDetails, filePaths, imageUrls, Array.from(tags), selectedLang, configFileName, configFileContent);
+            const prompt = createPrompt(repoDetails, filePaths, imageUrls, Array.from(tags), selectedLang, selectedLicense);
             const generatedReadme = await callGeminiApi(prompt, userGeminiKey);
             
             DOM.readmeOutput.innerText = stripMarkdownWrapper(generatedReadme);
+            
+            // Pindah ke tab preview setelah README selesai
             switchTab("preview");
-            showMessage("success", "README.md generated successfully! Check the 'Preview' tab.");
+            showMessage("success", "README.md and LICENSE generated successfully!");
 
         } catch (error) {
             showMessage("error", error.message);
@@ -127,10 +117,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return match ? match[1].replace(".git", "") : null;
     }
 
-    function copyToClipboard() {
-        const rawText = DOM.readmeOutput.innerText;
+    function copyToClipboard(elementId) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
         try {
-            navigator.clipboard.writeText(rawText).then(() => {
+            navigator.clipboard.writeText(element.innerText).then(() => {
                 showMessage("success", "Copied to clipboard!");
             });
         } catch (err) {
@@ -139,8 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // --- Event Listeners ---
-    DOM.generateBtn.addEventListener("click", handleGenerateReadme);
-    DOM.copyBtn.addEventListener("click", copyToClipboard);
+    DOM.generateBtn.addEventListener("click", handleGenerate);
+    DOM.copyBtn.addEventListener("click", () => copyToClipboard("readmeOutput"));
+    DOM.copyLicenseBtn.addEventListener("click", () => copyToClipboard("licenseOutput"));
+    
     DOM.addImageBtn.addEventListener("click", () => addNewImageInput(false));
     
     DOM.tagsInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); addTag(); } });
@@ -155,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     DOM.markdownTab.addEventListener("click", () => switchTab("markdown"));
     DOM.previewTab.addEventListener("click", () => switchTab("preview"));
+    DOM.licenseTab.addEventListener("click", () => switchTab("license"));
     
     DOM.saveGithubTokenBtn.addEventListener("click", () => saveToken("githubApiToken", DOM.githubTokenInput.value, "GitHub"));
     DOM.saveGeminiTokenBtn.addEventListener("click", () => saveToken("geminiApiKey", DOM.geminiTokenInput.value, "Gemini"));
