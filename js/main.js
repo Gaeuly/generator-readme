@@ -36,25 +36,51 @@ document.addEventListener("DOMContentLoaded", () => {
         switchTab("markdown");
 
         try {
-            // --- MAJOR FIX START ---
-            // 1. Fetch main repo details first to get the default branch name
             const repoDetails = await fetchGithubApi(`https://api.github.com/repos/${repoPath}`);
-            
-            // 2. Get the actual default branch name (e.g., 'main' or 'master')
             const defaultBranch = repoDetails.default_branch;
-            if (!defaultBranch) {
-                throw new Error("Could not determine the default branch for this repository.");
-            }
+            if (!defaultBranch) throw new Error("Could not determine the default branch.");
 
-            // 3. Fetch the file tree using the correct branch name
             const repoTree = await fetchGithubApi(`https://api.github.com/repos/${repoPath}/git/trees/${defaultBranch}?recursive=1`);
-            // --- MAJOR FIX END ---
+            const filePaths = repoTree.tree.map(f => f.path);
+            
+            // --- PERUBAHAN UTAMA DIMULAI DI SINI ---
+            // Daftar prioritas file konfigurasi untuk dideteksi
+            const configFilePriority = [
+                'package.json',      // Node.js
+                'composer.json',     // PHP (Composer)
+                'requirements.txt',  // Python (Pip)
+                'pom.xml',           // Java (Maven)
+                'build.gradle',      // Java/Android (Gradle)
+                'Dockerfile'         // Docker
+            ];
+
+            let configFileContent = null;
+            let configFileName = null;
+
+            // Cari file konfigurasi berdasarkan prioritas
+            for (const fileName of configFilePriority) {
+                const foundFile = repoTree.tree.find(file => file.path.endsWith(fileName));
+                if (foundFile) {
+                    try {
+                        const contentData = await fetchGithubApi(`https://api.github.com/repos/${repoPath}/contents/${foundFile.path}?ref=${defaultBranch}`);
+                        if (contentData.content) {
+                            configFileName = fileName;
+                            configFileContent = atob(contentData.content);
+                            break; // Hentikan pencarian setelah file pertama ditemukan
+                        }
+                    } catch (e) {
+                        console.warn(`Could not fetch ${fileName} content:`, e.message);
+                    }
+                }
+            }
+            // --- PERUBAHAN UTAMA SELESAI ---
 
             const imageUrls = Array.from(document.querySelectorAll(".image-url-input"))
                 .map(input => input.value.trim()).filter(Boolean);
             
             const selectedLang = DOM.languageSelect.value;
-            const prompt = createPrompt(repoDetails, repoTree.tree.map(f => f.path), imageUrls, Array.from(tags), selectedLang);
+            // Kirim nama dan konten file konfigurasi yang ditemukan ke prompt
+            const prompt = createPrompt(repoDetails, filePaths, imageUrls, Array.from(tags), selectedLang, configFileName, configFileContent);
             const generatedReadme = await callGeminiApi(prompt, userGeminiKey);
             
             DOM.readmeOutput.innerText = stripMarkdownWrapper(generatedReadme);
