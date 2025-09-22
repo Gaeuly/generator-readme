@@ -106,9 +106,7 @@ export function switchTab(tabName) {
 export function renderPreview() {
     let markdownText = DOM.readmeOutput.innerText.trim();
     
-    // --- PERBAIKAN DI SINI ---
-    // Menambahkan opsi { breaks: true } memaksa 'marked' untuk
-    // membuat tag <br> untuk setiap baris baru, sama seperti di GitHub.
+    // PERBAIKAN JS: Pastikan opsi breaks: true ada di sini.
     const options = { breaks: true };
 
     DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText, options)}</div>`;
@@ -138,4 +136,4 @@ export function addNewImageInput(isFirst = false) {
  */
 export function toggleModal(show) {
     DOM.apiKeysModal.classList.toggle("hidden", !show);
-                                    }
+        }
