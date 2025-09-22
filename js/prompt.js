@@ -21,7 +21,6 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
     let sectionCounter = 4;
     if (imageUrls.length > 0) sectionCounter++;
 
-    // --- INSTRUKSI BARU UNTUK LISENSI ---
     let licenseInstruction = "";
     let licenseSection = "";
     if (licenseType !== 'none') {
@@ -43,7 +42,8 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
             description: `3.  **Deskripsi 📝**: Jelaskan proyek dalam 1-2 paragraf.`,
             features: `${sectionCounter++}.  **Fitur Utama ✨**: Buat daftar 3-5 fitur unggulan.`,
             tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Sebutkan teknologi utama.`,
-            install: `${sectionCounter++}.  **Instalasi & Menjalankan 🚀**: Berikan panduan langkah-demi-langkah.`,
+            // === INSTRUKSI PENTING DIKEMBALIKAN DI SINI ===
+            install: `${sectionCounter++}.  **Instalasi & Menjalankan 🚀**: Berikan panduan langkah-demi-langkah. PENTING: Setiap perintah terminal (seperti 'git clone', 'npm install') HARUS berada di dalam blok kodenya sendiri menggunakan triple backticks (\`\`\`bash ... \`\`\`) agar mudah disalin.`,
             contribute: `${sectionCounter++}. **Cara Berkontribusi 🤝**: Jelaskan cara berkontribusi.`,
             outro: `Pastikan hasil AKHIR HANYA berupa konten Markdown mentah, tanpa penjelasan pembuka atau penutup.`
         },
@@ -53,7 +53,8 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
             description: `3.  **Description 📝**: Explain the project in 1-2 paragraphs.`,
             features: `${sectionCounter++}.  **Key Features ✨**: List 3-5 standout features.`,
             tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Mention the main technologies.`,
-            install: `${sectionCounter++}.  **Installation & Running 🚀**: Provide a step-by-step guide.`,
+            // === THE IMPORTANT INSTRUCTION IS RETURNED HERE ===
+            install: `${sectionCounter++}.  **Installation & Running 🚀**: Provide a step-by-step guide. IMPORTANT: Each terminal command (like 'git clone', 'npm install') MUST be in its own code block using triple backticks (\`\`\`bash ... \`\`\`) for easy copying.`,
             contribute: `${sectionCounter++}. **How to Contribute 🤝**: Explain how to contribute.`,
             outro: `Ensure the FINAL output is ONLY the raw Markdown content, without any introductory or concluding remarks.`
         }
@@ -82,4 +83,4 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
         ${t.contribute}
         ${licenseSection}
         ${t.outro}`;
-}
+            }
