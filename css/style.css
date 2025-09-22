@@ -11,9 +11,21 @@ body {
     border-top: 1px solid #444;
     margin: 1.5rem 0;
 }
+
+/* --- PERBAIKAN CSS DIMULAI DI SINI --- */
+
+/* Ini adalah kunci perbaikannya.
+  Kita memaksa setiap paragraf di dalam area preview untuk 
+  mempertahankan spasi dan baris baru persis seperti yang diketik.
+  'white-space: pre-wrap' sangat efektif untuk masalah ini.
+*/
 .markdown-body p {
     margin-bottom: 1rem;
+    white-space: pre-wrap; 
 }
+/* --- PERBAIKAN CSS SELESAI --- */
+
+
 .lds-dual-ring {
     display: inline-block;
     width: 20px;
