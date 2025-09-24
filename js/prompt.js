@@ -1,5 +1,15 @@
 // js/prompt.js
 
+/**
+ * Creates the complete prompt for the Gemini API.
+ * @param {object} repoDetails - Details of the GitHub repository.
+ * @param {string[]} files - A list of file paths in the repository.
+ * @param {string[]} imageUrls - URLs of images for the gallery.
+ * @param {string[]} tags - User-provided context tags.
+ * @param {string} [lang='en'] - The output language ('en' or 'id').
+ * @param {string} [licenseType='none'] - The type of license.
+ * @returns {string} The formatted prompt string.
+ */
 export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', licenseType = 'none') {
     const isIndonesian = lang === 'id';
 
@@ -30,38 +40,37 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
             : `\n**License Instruction**: This project uses the ${licenseName} License. Create a 'License' section at the end of the README stating this, and direct readers to see the 'LICENSE' file for full details.`;
         
         licenseSection = isIndonesian 
-            ? `${sectionCounter++}. **Lisensi 📄**: Sebutkan bahwa proyek ini di bawah Lisensi ${licenseName} dan rujuk ke file LICENSE.`
-            : `${sectionCounter++}. **License 📄**: Mention the project is under the ${licenseName} License and refer to the LICENSE file.`;
+            ? `${sectionCounter + 2}. **Lisensi 📄**: Sebutkan bahwa proyek ini di bawah Lisensi ${licenseName} dan rujuk ke file LICENSE.`
+            : `${sectionCounter + 2}. **License 📄**: Mention the project is under the ${licenseName} License and refer to the LICENSE file.`;
     }
 
-
+    // Language-specific text templates with enhanced instructions
     const texts = {
         id: {
-            intro: `Sebagai seorang ahli rekayasa perangkat lunak, buatkan file README.md yang profesional dan jelas untuk repositori GitHub berikut. Gunakan emoji yang relevan.`,
-            badges: `2.  **Badges**: Sertakan badge dari Shields.io untuk bahasa utama DAN untuk teknologi yang relevan. Jika ada lisensi, tambahkan badge lisensi juga.`,
-            description: `3.  **Deskripsi 📝**: Jelaskan proyek dalam 1-2 paragraf.`,
-            features: `${sectionCounter++}.  **Fitur Utama ✨**: Buat daftar 3-5 fitur unggulan.`,
-            tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Sebutkan teknologi utama.`,
-            // === INSTRUKSI PENTING DIKEMBALIKAN DI SINI ===
-            install: `${sectionCounter++}.  **Instalasi & Menjalankan 🚀**: Berikan panduan langkah-demi-langkah. PENTING: Setiap perintah terminal (seperti 'git clone', 'npm install') HARUS berada di dalam blok kodenya sendiri menggunakan triple backticks (\`\`\`bash ... \`\`\`) agar mudah disalin.`,
-            contribute: `${sectionCounter++}. **Cara Berkontribusi 🤝**: Jelaskan cara berkontribusi.`,
-            outro: `Pastikan hasil AKHIR HANYA berupa konten Markdown mentah, tanpa penjelasan pembuka atau penutup.`
+            intro: `Sebagai seorang Principal Software Engineer dan penulis teknis, buatkan file README.md yang sangat detail, profesional, dan komprehensif untuk repositori GitHub berikut. Gunakan emoji yang relevan untuk setiap bagian.`,
+            badges: `2.  **Badges**: Sertakan badge dari Shields.io untuk bahasa utama, lisensi (jika ada), dan teknologi relevan lainnya yang bisa kamu deteksi.`,
+            description: `3.  **Deskripsi Proyek 📝**: Tulis deskripsi yang menarik dan detail (3-4 paragraf). Jelaskan apa tujuan proyek ini, masalah apa yang dipecahkannya, dan untuk siapa proyek ini dibuat.`,
+            features: `${sectionCounter}.  **Fitur Utama ✨**: Buat daftar fitur-fitur utama. Untuk setiap fitur, berikan deskripsi singkat namun berdampak yang menjelaskan apa yang dilakukannya dan manfaatnya.`,
+            tech: `${sectionCounter + 1}.  **Tech Stack & Tools 🛠️**: Buat daftar teknologi, framework, dan tools yang digunakan. Jika memungkinkan, gunakan format tabel atau daftar yang rapi. Simpulkan dari daftar file (misalnya 'package.json', 'pom.xml', dll.) dan konteks yang diberikan.`,
+            install: `${sectionCounter + 2}.  **Instalasi & Menjalankan Secara Lokal 🚀**: Berikan panduan langkah-demi-langkah yang jelas. Mulai dari prasyarat (misal: versi Node.js, Python, dll.), lalu kloning, instalasi dependensi, dan cara menjalankan proyek. Setiap perintah terminal HARUS berada di dalam blok kodenya sendiri (\`\`\`bash ... \`\`\`).`,
+            contribute: `${sectionCounter + 3}. **Cara Berkontribusi 🤝**: Jelaskan secara singkat bagaimana orang lain dapat berkontribusi pada proyek ini.`,
+            outro: `Pastikan hasil AKHIR HANYA berupa konten Markdown mentah yang lengkap dan terstruktur dengan baik, tanpa penjelasan pembuka atau penutup.`
         },
         en: {
-            intro: `As an expert software engineer, create a professional and clear README.md file for the following GitHub repository. Use relevant emojis.`,
-            badges: `2.  **Badges**: Include badges from Shields.io for the main language AND for relevant technologies. If a license is specified, add a license badge too.`,
-            description: `3.  **Description 📝**: Explain the project in 1-2 paragraphs.`,
-            features: `${sectionCounter++}.  **Key Features ✨**: List 3-5 standout features.`,
-            tech: `${sectionCounter++}.  **Tech Stack 🛠️**: Mention the main technologies.`,
-            // === THE IMPORTANT INSTRUCTION IS RETURNED HERE ===
-            install: `${sectionCounter++}.  **Installation & Running 🚀**: Provide a step-by-step guide. IMPORTANT: Each terminal command (like 'git clone', 'npm install') MUST be in its own code block using triple backticks (\`\`\`bash ... \`\`\`) for easy copying.`,
-            contribute: `${sectionCounter++}. **How to Contribute 🤝**: Explain how to contribute.`,
-            outro: `Ensure the FINAL output is ONLY the raw Markdown content, without any introductory or concluding remarks.`
+            intro: `As a Principal Software Engineer and technical writer, create a highly detailed, professional, and comprehensive README.md file for the following GitHub repository. Use relevant emojis for each section.`,
+            badges: `2.  **Badges**: Include badges from Shields.io for the main language, the license (if specified), and other relevant technologies you can detect.`,
+            description: `3.  **Project Description 📝**: Write a compelling and detailed description (3-4 paragraphs). Explain what this project does, what problem it solves, and who it is for.`,
+            features: `${sectionCounter}.  **Key Features ✨**: List the main features. For each feature, provide a brief but impactful description explaining what it does and its benefit.`,
+            tech: `${sectionCounter + 1}.  **Tech Stack & Tools 🛠️**: List the technologies, frameworks, and tools used. If possible, use a table or a well-formatted list. Infer from the file list (e.g., 'package.json', 'pom.xml', etc.) and the provided context.`,
+            install: `${sectionCounter + 2}.  **Installation & Running Locally 🚀**: Provide a clear, step-by-step guide. Start with prerequisites (e.g., Node.js version, Python, etc.), then cloning, installing dependencies, and how to run the project. Each terminal command MUST be in its own code block (\`\`\`bash ... \`\`\`).`,
+            contribute: `${sectionCounter + 3}. **How to Contribute 🤝**: Briefly explain how others can contribute to this project.`,
+            outro: `Ensure the FINAL output is ONLY the raw, complete, and well-structured Markdown content, without any introductory or concluding remarks.`
         }
     };
     
     const t = texts[lang];
 
+    // Assemble the final prompt
     return `${t.intro}
         ${licenseInstruction}
         Repository Data:
@@ -72,7 +81,7 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
         - License: ${licenseType}
         - Files: ${files.slice(0, 30).join(", ")}
         ${tagInstruction}
-        README Structure and Instructions (Follow VERY STRICTLY):
+        README Structure and Instructions (Follow VERY STRICTLY and be DETAILED):
         1.  **Project Title**: Use the project name as H1.
         ${t.badges}
         ${t.description}
@@ -81,6 +90,6 @@ export function createPrompt(repoDetails, files, imageUrls, tags, lang = 'en', l
         ${t.tech}
         ${t.install}
         ${t.contribute}
-        ${licenseSection}
+        ${licenseSection.replace((sectionCounter + 2).toString(), (sectionCounter + 4).toString())}
         ${t.outro}`;
-            }
+}
