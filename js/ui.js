@@ -5,7 +5,7 @@ export const DOM = {
     // Buttons
     generateBtn: document.getElementById("generateBtn"),
     copyBtn: document.getElementById("copyBtn"),
-    copyLicenseBtn: document.getElementById("copyLicenseBtn"), // BARU
+    copyLicenseBtn: document.getElementById("copyLicenseBtn"),
     addImageBtn: document.getElementById("add-image-btn"),
     addTagBtn: document.getElementById("add-tag-btn"),
     saveGithubTokenBtn: document.getElementById("save-github-token-btn"),
@@ -14,7 +14,7 @@ export const DOM = {
     githubUrlInput: document.getElementById("githubUrl"),
     tagsInput: document.getElementById("tags-input"),
     languageSelect: document.getElementById("language-select"),
-    licenseSelect: document.getElementById("license-select"), // BARU
+    licenseSelect: document.getElementById("license-select"),
     githubTokenInput: document.getElementById("githubToken"),
     geminiTokenInput: document.getElementById("geminiToken"),
     // Containers
@@ -23,14 +23,14 @@ export const DOM = {
     tagsContainer: document.getElementById("tags-container"),
     // Output Panes
     readmeOutput: document.getElementById("readmeOutput"),
-    licenseOutput: document.getElementById("licenseOutput"), // BARU
+    licenseOutput: document.getElementById("licenseOutput"),
     previewPane: document.getElementById("pane-preview"),
     markdownPane: document.getElementById("pane-markdown"),
-    licensePane: document.getElementById("pane-license"), // BARU
+    licensePane: document.getElementById("pane-license"),
     // Tabs
     markdownTab: document.getElementById("tab-markdown"),
     previewTab: document.getElementById("tab-preview"),
-    licenseTab: document.getElementById("tab-license"), // BARU
+    licenseTab: document.getElementById("tab-license"),
     // Modal Elements
     apiKeysModal: document.getElementById("api-keys-modal"),
     modalGithubTokenInput: document.getElementById("modal-github-token"),
@@ -42,15 +42,20 @@ export const DOM = {
     btnText: document.getElementById("btn-text"),
 };
 
+/**
+ * Displays a message to the user.
+ * @param {'error'|'success'|'info'} type - The type of message.
+ * @param {string} message - The message content.
+ */
 export function showMessage(type, message) {
     DOM.messageContainer.innerHTML = "";
     const colors = {
-        error: "bg-red-900 border-red-700 text-red-300",
-        success: "bg-green-900 border-green-700 text-green-300",
-        info: "bg-blue-900 border-blue-700 text-blue-300",
+        error: "bg-red-100 border-red-500 text-red-700",
+        success: "bg-green-100 border-green-500 text-green-700",
+        info: "bg-blue-100 border-blue-500 text-blue-700",
     };
     const div = document.createElement("div");
-    div.className = `p-4 rounded-lg border ${colors[type] || colors.info}`;
+    div.className = `p-4 rounded-lg border-2 ${colors[type] || colors.info}`;
     div.textContent = message;
     DOM.messageContainer.appendChild(div);
     setTimeout(() => {
@@ -62,6 +67,10 @@ export function showMessage(type, message) {
     }, 4000);
 }
 
+/**
+ * Toggles the loading state of the generate button.
+ * @param {boolean} isLoading - Whether the app is in a loading state.
+ */
 export function setLoading(isLoading) {
     DOM.generateBtn.disabled = isLoading;
     DOM.btnText.textContent = isLoading ? "Generating..." : "Generate";
@@ -69,7 +78,7 @@ export function setLoading(isLoading) {
     if (isLoading) {
         DOM.readmeOutput.innerText = "Analyzing repository and generating README.md, please wait...";
         DOM.licenseOutput.innerText = "Generating LICENSE file if selected...";
-        renderPreview();
+        renderPreview(); // Update preview to show loading message
     }
 }
 
@@ -78,47 +87,55 @@ export function setLoading(isLoading) {
  * @param {'markdown'|'preview'|'license'} activeTab - The name of the tab to activate.
  */
 export function switchTab(activeTab) {
-    // Sembunyikan semua pane
+    // Hide all panes
     DOM.markdownPane.classList.add("hidden");
     DOM.previewPane.classList.add("hidden");
     DOM.licensePane.classList.add("hidden");
 
-    // Reset semua style tab
+    // Reset all tab styles
     const tabs = [DOM.markdownTab, DOM.previewTab, DOM.licenseTab];
     tabs.forEach(tab => {
-        tab.classList.remove("bg-gray-800", "text-white");
-        tab.classList.add("text-gray-400", "hover:bg-gray-800/50");
+        tab.classList.remove("border-black", "text-black");
+        tab.classList.add("text-gray-500", "border-transparent");
     });
     
-    // Tampilkan pane dan style tab yang aktif
+    // Show the active pane and style the active tab
     if (activeTab === 'markdown') {
         DOM.markdownPane.classList.remove("hidden");
-        DOM.markdownTab.classList.add("bg-gray-800", "text-white");
-        DOM.markdownTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
+        DOM.markdownTab.classList.add("border-black", "text-black");
+        DOM.markdownTab.classList.remove("text-gray-500");
     } else if (activeTab === 'preview') {
         DOM.previewPane.classList.remove("hidden");
-        DOM.previewTab.classList.add("bg-gray-800", "text-white");
-        DOM.previewTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
+        DOM.previewTab.classList.add("border-black", "text-black");
+        DOM.previewTab.classList.remove("text-gray-500");
         renderPreview();
     } else if (activeTab === 'license') {
         DOM.licensePane.classList.remove("hidden");
-        DOM.licenseTab.classList.add("bg-gray-800", "text-white");
-        DOM.licenseTab.classList.remove("text-gray-400", "hover:bg-gray-800/50");
+        DOM.licenseTab.classList.add("border-black", "text-black");
+        DOM.licenseTab.classList.remove("text-gray-500");
     }
 }
 
+/**
+ * Renders the markdown content from the output area into the preview pane.
+ */
 export function renderPreview() {
     let markdownText = DOM.readmeOutput.innerText.trim();
-    const options = { breaks: true };
+    // Use marked.js to parse markdown to HTML
+    const options = { breaks: true }; // a marked.js option to interpret line breaks as <br>
     DOM.previewPane.innerHTML = `<div class="markdown-body">${marked.parse(markdownText, options)}</div>`;
 }
 
+/**
+ * Adds a new input field for an image URL.
+ * @param {boolean} [isFirst=false] - Whether this is the initial input field.
+ */
 export function addNewImageInput(isFirst = false) {
     const div = document.createElement("div");
     div.className = "flex items-center gap-3";
-    div.innerHTML = `<input type="text" class="image-url-input w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500" placeholder="https://.../image.png"> ${
+    div.innerHTML = `<input type="text" class="image-url-input custom-input" placeholder="https://.../image.png"> ${
       !isFirst
-        ? '<button class="remove-image-btn text-red-400 hover:text-red-300 font-bold text-xl">&times;</button>'
+        ? '<button class="remove-image-btn text-red-500 hover:text-red-700 font-bold text-2xl">&times;</button>'
         : ""
     }`;
     DOM.imageInputsContainer.appendChild(div);
@@ -127,6 +144,10 @@ export function addNewImageInput(isFirst = false) {
     }
 }
 
+/**
+ * Toggles the visibility of the API keys modal.
+ * @param {boolean} show - Whether to show the modal.
+ */
 export function toggleModal(show) {
     DOM.apiKeysModal.classList.toggle("hidden", !show);
 }

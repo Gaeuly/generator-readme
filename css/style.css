@@ -1,31 +1,92 @@
+/* Custom styles to match the new design */
 body {
     font-family: "Inter", sans-serif;
+    background-color: #FFFFFF;
+    color: #111827;
 }
 
-.markdown-body ul {
-    list-style-type: disc;
-    padding-left: 1.5em;
+/* The custom card style with transition and hover effect */
+.setting-card {
+    border: 2px solid #000;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 4px 4px 0px #000;
 }
-.markdown-body hr {
-    border: none;
-    border-top: 1px solid #444;
-    margin: 1.5rem 0;
+
+.setting-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: 8px 8px 0px #000;
 }
 
-/* --- PERBAIKAN CSS DIMULAI DI SINI --- */
-
-/* Ini adalah kunci perbaikannya.
-  Kita memaksa setiap paragraf di dalam area preview untuk 
-  mempertahankan spasi dan baris baru persis seperti yang diketik.
-  'white-space: pre-wrap' sangat efektif untuk masalah ini.
-*/
-.markdown-body p {
-    margin-bottom: 1rem;
-    white-space: pre-wrap; 
+/* Custom input and button styles */
+.custom-input, .custom-select {
+    border: 2px solid #000;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    background-color: #fff;
+    transition: box-shadow 0.2s;
 }
-/* --- PERBAIKAN CSS SELESAI --- */
+.custom-input:focus, .custom-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.2);
+}
 
+.main-generate-btn {
+     background-color: #22c55e; /* Green-500 */
+     color: white;
+     font-weight: bold;
+     border: 2px solid #000;
+     border-radius: 0.5rem;
+     padding: 1rem;
+     width: 100%;
+     text-align: center;
+     transition: all 0.2s ease-in-out;
+     box-shadow: 4px 4px 0px #000;
+}
+.main-generate-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px #000;
+}
+.main-generate-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: 4px 4px 0px #000;
+    transform: none;
+}
 
+/* Tag pill styles */
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    background-color: #3b82f6; /* Blue-500 */
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid black;
+}
+.tag-remove-btn {
+    margin-left: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    background-color: #1e40af; /* Blue-800 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+    transition: background-color 0.2s;
+}
+.tag-remove-btn:hover { background-color: #ef4444; } /* Red-500 */
+
+/* Loader animation */
 .lds-dual-ring {
     display: inline-block;
     width: 20px;
@@ -46,51 +107,20 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-details > summary { list-style: none; }
-details > summary::-webkit-details-marker { display: none; }
 
-.tag-pill {
-    display: inline-flex;
-    align-items: center;
-    background-color: #0891b2;
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
+/* Modal styles */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
 }
-.tag-remove-btn {
-    margin-left: 0.5rem;
-    width: 1rem;
-    height: 1rem;
-    background-color: #164e63;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-weight: bold;
-    line-height: 1;
-    transition: background-color 0.2s;
-}
-.tag-remove-btn:hover { background-color: #1e3a8a; }
 
-#readmeOutput {
-    white-space: pre-wrap;
-    word-break: break-word;
-}
-#pane-preview.markdown-body {
-    box-sizing: border-box;
-    background-color: #0d1117;
+/* Ensure markdown preview has proper styling */
+.markdown-body {
+    background-color: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
     padding: 2.5rem;
-    border-radius: 0 0 0.5rem 0.5rem;
 }
 @media (max-width: 767px) {
-    #pane-preview.markdown-body { padding: 1rem; }
-}
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
+    .markdown-body { padding: 1rem; }
 }

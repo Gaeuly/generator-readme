@@ -1,149 +1,165 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AI GITHUB README.MD GENERATOR</title>
-    <meta name="description" content="README.md Generator gratis dan cerdas berbasis AI dari GitHub repository. Buat README yang profesional dan menarik dalam satu klik."/>
+    <title>AI GitHub README.md Generator</title>
+    <meta name="description" content="A free and intelligent AI-based README.md generator for GitHub repositories. Create professional and engaging READMEs in a single click."/>
     
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js for Markdown to HTML conversion -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css" />
+    <!-- GitHub Markdown CSS for preview styling -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-light.min.css" />
+    <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="css/style.css" />
 </head>
 
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+<body class="flex items-center justify-center min-h-screen p-4 md:p-6">
+    <div class="w-full max-w-5xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-6 flex flex-col items-center justify-center gap-2">
-            <div class="flex items-center gap-3">
-                <img src="logo-web.png" alt="Logo" class="w-20 h-20" />
-                <h1 class="text-3xl md:text-4xl font-bold text-cyan-400">README.md & License Generator</h1>
-            </div>
-            <p class="text-gray-400 text-sm md:text-base">Make professional README.md & LICENSE with AI</p>
-        </div>
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight mb-2">Repository to Documentation</h1>
+            <p class="text-gray-600 text-lg md:text-xl max-w-2xl mx-auto">Turn any GitHub repository into a comprehensive, AI-powered documentation hub.</p>
+        </header>
 
-        <!-- Input Section -->
-        <div class="space-y-4 mb-4">
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="githubUrl" placeholder="Tempel URL Repositori GitHub di sini..." class="flex-grow bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition" />
-                <button id="generateBtn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center transition shadow-lg shadow-cyan-500/20">
-                    <span id="btn-text">Generate</span>
-                    <div id="loader" class="lds-dual-ring hidden ml-2"></div>
-                </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-gray-900/50 p-4 rounded-lg">
-                    <label for="language-select" class="block text-sm font-medium text-gray-300 mb-2">Language Output</label>
-                    <select id="language-select" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                        <option value="id">Indonesia</option>
-                        <option value="en">English</option>
-                    </select>
-                </div>
-                 <!-- === FITUR BARU: PILIHAN LISENSI === -->
-                <div class="bg-gray-900/50 p-4 rounded-lg">
-                    <label for="license-select" class="block text-sm font-medium text-gray-300 mb-2">Generate LICENSE file</label>
-                    <select id="license-select" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-                        <option value="none">None</option>
-                        <option value="mit">MIT License</option>
-                        <option value="apache-2.0">Apache License 2.0</option>
-                        <option value="gpl-3.0">GNU GPLv3</option>
-                    </select>
+        <!-- Main Content -->
+        <main class="space-y-6">
+            <!-- Input and Generate Button -->
+            <div class="bg-green-200 setting-card">
+                 <div class="flex flex-col md:flex-row gap-4">
+                    <input type="text" id="githubUrl" placeholder="Paste your GitHub Repository URL here..." class="flex-grow custom-input" />
+                    <button id="generateBtn" class="main-generate-btn">
+                        <span id="btn-text">Generate</span>
+                        <div id="loader" class="lds-dual-ring hidden ml-2"></div>
+                    </button>
                 </div>
             </div>
 
-            <div class="bg-gray-900/50 p-4 rounded-lg">
-                <label class="block text-sm font-medium text-gray-300 mb-2">Link Picture/GIF Documentation</label>
-                <div id="image-inputs-container" class="space-y-3"></div>
-                <button id="add-image-btn" class="mt-3 text-sm bg-cyan-800 hover:bg-cyan-700 text-cyan-200 font-semibold py-2 px-4 rounded-lg transition">+ Add picture</button>
-            </div>
-            
-            <div class="bg-gray-900/50 p-4 rounded-lg">
-                <label for="tags-input" class="block text-sm font-medium text-gray-300 mb-2">Tag Konteks (Enter or Click +)</label>
-                <div id="tags-container" class="mb-2"></div>
-                <div class="flex gap-2">
-                    <input type="text" id="tags-input" placeholder="e.g., react, nodejs..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" />
-                    <button id="add-tag-btn" class="bg-cyan-700 hover:bg-cyan-600 text-white font-bold w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center text-2xl transition">+</button>
-                </div>
-            </div>
-
-            <details class="group">
-                <summary class="cursor-pointer text-sm text-gray-400 hover:text-cyan-400 transition">
-                    <span class="font-medium">Next Settings</span>
-                </summary>
-                <div class="mt-3 bg-gray-900/50 p-4 rounded-lg space-y-4">
-                    <div>
-                        <label for="githubToken" class="block text-sm font-medium text-gray-300 mb-1">GitHub Personal Access Token</label>
-                        <div class="flex gap-3">
-                            <input type="password" id="githubToken" placeholder="Tempel token untuk atasi batas API GitHub" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500" />
-                            <button id="save-github-token-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Save</button>
+            <!-- Settings Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Language & License Card -->
+                <div class="bg-yellow-200 setting-card">
+                    <h3 class="font-bold text-lg mb-4">Core Options</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="language-select" class="block text-sm font-medium mb-1">Output Language</label>
+                            <select id="language-select" class="custom-select">
+                                <option value="en">English</option>
+                                <option value="id">Indonesian</option>
+                            </select>
                         </div>
-                    </div>
-                    <div>
-                        <label for="geminiToken" class="block text-sm font-medium text-gray-300 mb-1">Gemini API Key</label>
-                        <div class="flex gap-3">
-                            <input type="password" id="geminiToken" placeholder="Tempel Gemini API Key untuk akses tanpa batas" class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white placeholder-gray-500" />
-                            <button id="save-gemini-token-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Save</button>
+                        <div>
+                            <label for="license-select" class="block text-sm font-medium mb-1">Generate LICENSE file</label>
+                            <select id="license-select" class="custom-select">
+                                <option value="none">None</option>
+                                <option value="mit">MIT License</option>
+                                <option value="apache-2.0">Apache License 2.0</option>
+                                <option value="gpl-3.0">GNU GPLv3</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-            </details>
-        </div>
 
-        <div id="message-container" class="mb-6"></div>
-
-        <div id="output-container" class="bg-gray-900 rounded-lg p-4">
-             <div class="flex border-b border-gray-700">
-                <!-- === PERUBAHAN TAB === -->
-                <button id="tab-markdown" class="py-2 px-4 font-semibold text-white bg-gray-800 rounded-t-lg">README</button>
-                <button id="tab-preview" class="py-2 px-4 font-semibold text-gray-400 hover:bg-gray-800/50 rounded-t-lg">Preview</button>
-                <button id="tab-license" class="py-2 px-4 font-semibold text-gray-400 hover:bg-gray-800/50 rounded-t-lg">License</button>
-                <div class="flex-grow"></div>
-                <button id="copyBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold my-auto py-1 px-3 rounded-lg text-sm transition">Copy README</button>
-            </div>
-            <!-- Pane untuk README -->
-            <div id="pane-markdown" class="mt-4">
-                <div id="readmeOutput" contenteditable="true" class="w-full min-h-[480px] bg-gray-800 border-2 border-gray-700 rounded-b-lg p-4 text-gray-200 font-mono text-sm whitespace-pre-wrap" placeholder="Hasil README.md akan muncul di sini..."></div>
-            </div>
-            <!-- Pane untuk Preview -->
-            <div id="pane-preview" class="hidden markdown-body max-w-none w-full min-h-[480px] overflow-y-auto">
-                <p class="text-gray-500">Preview will appear here</p>
-            </div>
-            <!-- === PANE BARU UNTUK LISENSI === -->
-            <div id="pane-license" class="hidden mt-4">
-                 <div class="flex justify-end mb-2">
-                    <button id="copyLicenseBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold my-auto py-1 px-3 rounded-lg text-sm transition">Copy License</button>
+                <!-- Tags Card -->
+                <div class="bg-blue-200 setting-card">
+                     <h3 class="font-bold text-lg mb-4">Context Tags</h3>
+                     <label for="tags-input" class="block text-sm font-medium mb-1">Add tags for more context (e.g., react, nodejs)</label>
+                     <div class="flex gap-2">
+                        <input type="text" id="tags-input" placeholder="Press Enter or click '+'" class="custom-input" />
+                        <button id="add-tag-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold w-12 h-12 flex-shrink-0 rounded-lg flex items-center justify-center text-2xl transition border-2 border-black">+</button>
+                    </div>
+                    <div id="tags-container" class="mt-3 flex flex-wrap gap-2"></div>
                 </div>
-                <pre id="licenseOutput" class="w-full min-h-[480px] bg-gray-800 border-2 border-gray-700 rounded-lg p-4 text-gray-200 font-mono text-sm whitespace-pre-wrap">Pilih lisensi dan klik Generate untuk melihat hasilnya di sini.</pre>
-            </div>
-        </div>
+                
+                 <!-- Image/GIF Card -->
+                <div class="bg-pink-200 setting-card">
+                    <h3 class="font-bold text-lg mb-4">Image / GIF Documentation</h3>
+                    <label class="block text-sm font-medium mb-2">Provide links to project screenshots or GIFs.</label>
+                    <div id="image-inputs-container" class="space-y-3"></div>
+                    <button id="add-image-btn" class="mt-3 text-sm bg-pink-500 hover:bg-pink-600 text-white font-semibold py-2 px-4 rounded-lg transition border-2 border-black">+ Add another image</button>
+                </div>
 
-        <div class="text-center mt-6 text-gray-500 text-sm">
-            Made with <span class="text-red-500">&hearts;</span> by <a href="https://github.com/Gaeuly" target="_blank" class="text-cyan-400 hover:underline">@gaeuly</a>
-        </div>
+                <!-- API Keys Card -->
+                <div class="bg-gray-200 setting-card">
+                    <h3 class="font-bold text-lg mb-4">API Keys</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label for="githubToken" class="block text-sm font-medium mb-1">GitHub Personal Access Token</label>
+                            <div class="flex gap-3">
+                                <input type="password" id="githubToken" placeholder="Paste token to avoid API rate limits" class="custom-input" />
+                                <button id="save-github-token-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition border-2 border-black">Save</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="geminiToken" class="block text-sm font-medium mb-1">Gemini API Key</label>
+                            <div class="flex gap-3">
+                                <input type="password" id="geminiToken" placeholder="Paste Gemini API Key for generation" class="custom-input" />
+                                <button id="save-gemini-token-btn" class="bg-gray-700 hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg transition border-2 border-black">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message Container -->
+            <div id="message-container" class="my-4"></div>
+
+            <!-- Output Section -->
+            <div id="output-container" class="bg-white border-2 border-black rounded-lg p-4 mt-8">
+                <div class="flex border-b-2 border-black mb-2">
+                    <button id="tab-preview" class="py-2 px-4 font-semibold border-b-2 border-black">Preview</button>
+                    <button id="tab-markdown" class="py-2 px-4 font-semibold text-gray-500">README Markdown</button>
+                    <button id="tab-license" class="py-2 px-4 font-semibold text-gray-500">License Text</button>
+                </div>
+
+                <!-- Preview Pane -->
+                <div id="pane-preview" class="markdown-body max-w-none w-full min-h-[480px] overflow-y-auto">
+                    <p class="text-gray-500">The generated preview will appear here.</p>
+                </div>
+
+                <!-- Markdown Pane -->
+                <div id="pane-markdown" class="hidden mt-4">
+                    <button id="copyBtn" class="float-right mb-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 rounded-lg text-sm transition border-2 border-black">Copy Markdown</button>
+                    <div id="readmeOutput" contenteditable="true" class="w-full min-h-[480px] bg-gray-50 border-2 border-gray-300 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap"></div>
+                </div>
+                
+                <!-- License Pane -->
+                <div id="pane-license" class="hidden mt-4">
+                    <button id="copyLicenseBtn" class="float-right mb-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-1 px-3 rounded-lg text-sm transition border-2 border-black">Copy License</button>
+                    <pre id="licenseOutput" class="w-full min-h-[480px] bg-gray-50 border-2 border-gray-300 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap">Select a license and click Generate to see the result here.</pre>
+                </div>
+            </div>
+
+             <footer class="text-center mt-8 text-gray-500 text-sm">
+                Inspired by GitSummarize. Made with <span class="text-red-500">&hearts;</span> by <a href="https://github.com/Gaeuly" target="_blank" class="font-bold text-black hover:underline">@gaeuly</a>
+            </footer>
+        </main>
     </div>
     
+    <!-- Modal for API Keys -->
     <div id="api-keys-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop">
-      <div class="bg-gray-800 rounded-2xl shadow-2xl max-w-lg w-full p-8 space-y-6 transform transition-all">
-        <h2 class="text-2xl font-bold text-cyan-400">API Keys</h2>
-        <p class="text-gray-300">This application requires an API key to function. The key is stored securely in your browser and is not sent to our servers.</p>
+      <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8 space-y-6 transform transition-all border-2 border-black">
+        <h2 class="text-2xl font-bold">API Keys Required</h2>
+        <p class="text-gray-600">This application requires API keys to function. They are stored securely in your browser's local storage and are never sent to our servers.</p>
         <div class="space-y-4">
           <div>
-            <label for="modal-github-token" class="block text-sm font-medium text-gray-300 mb-1">GitHub Personal Access Token</label>
-            <input type="password" id="modal-github-token" placeholder="github_pat_..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white" />
-            <p class="mt-2 text-xs text-gray-500">Needed to get repo <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="text-cyan-500 hover:underline">Buat token di sini</a>.</p>
+            <label for="modal-github-token" class="block text-sm font-medium mb-1">GitHub Personal Access Token</label>
+            <input type="password" id="modal-github-token" placeholder="github_pat_..." class="custom-input" />
+            <p class="mt-2 text-xs text-gray-500">Needed to fetch repository details. <a href="https://github.com/settings/tokens?type=beta" target="_blank" class="font-bold text-black hover:underline">Create a token here</a>.</p>
           </div>
           <div>
-            <label for="modal-gemini-token" class="block text-sm font-medium text-gray-300 mb-1">Gemini API Key</label>
-            <input type="password" id="modal-gemini-token" placeholder="AIza..." class="w-full bg-gray-700 border-2 border-gray-600 rounded-lg px-4 py-2 text-white" />
-            <p class="mt-2 text-xs text-gray-500">Required to generate content <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-cyan-500 hover:underline">Get key in here</a>.</p>
+            <label for="modal-gemini-token" class="block text-sm font-medium mb-1">Gemini API Key</label>
+            <input type="password" id="modal-gemini-token" placeholder="AIza..." class="custom-input" />
+            <p class="mt-2 text-xs text-gray-500">Required to generate content. <a href="https://aistudio.google.com/app/apikey" target="_blank" class="font-bold text-black hover:underline">Get your key here</a>.</p>
           </div>
         </div>
         <div class="flex flex-col sm:flex-row gap-4">
-          <button id="modal-save-keys-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition">Save & Next</button>
-          <button id="modal-close-btn" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg transition">Close</button>
+          <button id="modal-save-keys-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition border-2 border-black">Save & Continue</button>
+          <button id="modal-close-btn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition border-2 border-black">Close</button>
         </div>
       </div>
     </div>
