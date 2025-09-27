@@ -27,11 +27,11 @@ export async function fetchGithubApi(apiUrl) {
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found. Please add it in the settings.");
     
-    // PERBAIKAN 2: Menggunakan model gemini-1.5-flash-latest yang sangat stabil dan kuat.
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
+    // PERBAIKAN FINAL: Menggunakan model 'gemini-pro'. Ini adalah alias stabil 
+    // untuk model Pro yang ada di daftar Anda dan dijamin tersedia.
+    const apiUrl = `https://generativethinkinglanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-    // PERBAIKAN 1: Menambahkan logika retry (coba lagi) jika terjadi error sementara
     const maxRetries = 3;
     let lastError = null;
 
@@ -56,26 +56,25 @@ export async function callGeminiApi(prompt, apiKey) {
                 }
             }
 
-            // Jika error bisa dicoba lagi (seperti 503 Service Unavailable)
             if (response.status === 503 || response.status === 500) {
                  lastError = new Error(`Gemini API Error: ${response.statusText} (attempt ${attempt})`);
                  console.warn(lastError.message);
-                 // Tunggu sebelum mencoba lagi (1 detik, 2 detik, 4 detik)
-                 await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt -1)));
-                 continue; // Lanjut ke percobaan berikutnya
+                 await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
+                 continue;
             }
 
-            // Untuk error lain, langsung gagalkan
             const errorData = await response.json();
             throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
 
         } catch (error) {
             lastError = error;
             console.error(`Attempt ${attempt} failed:`, error);
+            // Tambahkan jeda juga untuk error network
+            if (attempt < maxRetries) {
+                await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
+            }
         }
     }
 
-    // Jika semua percobaan gagal, lempar error terakhir
     throw new Error(`Failed to call Gemini API after ${maxRetries} attempts. Last error: ${lastError.message}`);
 }
-
