@@ -22,7 +22,7 @@ export async function fetchGithubApi(apiUrl) {
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found. Please add it in the settings.");
     
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
     const response = await fetch(apiUrl, {
