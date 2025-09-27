@@ -28,7 +28,7 @@ export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found.");
 
     // PERUBAHAN: Menggunakan model 'flash' yang lebih cepat, sama seperti di referensi.
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
     
     const payload = {
         contents: [{ parts: [{ text: prompt }] }],
