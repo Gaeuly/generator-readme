@@ -27,28 +27,16 @@ export async function fetchGithubApi(apiUrl) {
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found.");
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+    // PERUBAHAN: Menggunakan model 'flash' yang lebih cepat, sama seperti di referensi.
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-latest:generateContent?key=${apiKey}`;
     
-    // PERBAIKAN UTAMA: Menambahkan safetySettings untuk menghindari blokir yang tidak perlu.
     const payload = {
         contents: [{ parts: [{ text: prompt }] }],
         safetySettings: [
-            {
-                "category": "HARM_CATEGORY_HARASSMENT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_HATE_SPEECH",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                "threshold": "BLOCK_NONE"
-            },
-            {
-                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                "threshold": "BLOCK_NONE"
-            }
+            { "category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE" },
+            { "category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE" }
         ]
     };
 
@@ -66,15 +54,13 @@ export async function callGeminiApi(prompt, apiKey) {
             if (response.ok) {
                 const data = await response.json();
                 
-                // Pengecekan respons yang lebih detail
                 const candidate = data.candidates?.[0];
                 if (candidate?.content?.parts?.[0]?.text) {
                     return candidate.content.parts[0].text;
                 }
                 
-                // Jika tidak ada teks, cek kenapa generation di-stop
                 if (candidate?.finishReason === 'SAFETY') {
-                    throw new Error("Generation stopped due to safety settings, even after override. The prompt might contain sensitive content.");
+                    throw new Error("Generation stopped due to safety settings. The prompt might contain sensitive content.");
                 }
 
                 console.error("Unexpected Gemini API response structure:", data);
@@ -83,7 +69,6 @@ export async function callGeminiApi(prompt, apiKey) {
 
             if (response.status === 503 || response.status === 500) {
                  lastError = new Error(`Gemini API Error: ${response.statusText} (attempt ${attempt})`);
-                 console.warn(lastError.message);
                  await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
                  continue;
             }
