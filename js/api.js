@@ -19,7 +19,7 @@ export async function fetchGithubApi(apiUrl) {
 }
 
 /**
- * Calls the Gemini API with retry logic.
+ * Calls the Gemini API with retry logic and explicit safety settings.
  * @param {string} prompt The prompt to send.
  * @param {string} apiKey The user's Gemini API key.
  * @returns {Promise<string>} The generated text.
@@ -27,9 +27,30 @@ export async function fetchGithubApi(apiUrl) {
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found.");
 
-    // PERBAIKAN FINAL: URL yang BENAR dan model 'gemini-2.5-pro' yang ADA di daftar Anda.
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
-    const payload = { contents: [{ parts: [{ text: prompt }] }] };
+    
+    // PERBAIKAN UTAMA: Menambahkan safetySettings untuk menghindari blokir yang tidak perlu.
+    const payload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        safetySettings: [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_NONE"
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_NONE"
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_NONE"
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_NONE"
+            }
+        ]
+    };
 
     const maxRetries = 3;
     let lastError = null;
@@ -44,14 +65,20 @@ export async function callGeminiApi(prompt, apiKey) {
 
             if (response.ok) {
                 const data = await response.json();
-                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                    return data.candidates[0].content.parts[0].text;
+                
+                // Pengecekan respons yang lebih detail
+                const candidate = data.candidates?.[0];
+                if (candidate?.content?.parts?.[0]?.text) {
+                    return candidate.content.parts[0].text;
                 }
+                
+                // Jika tidak ada teks, cek kenapa generation di-stop
+                if (candidate?.finishReason === 'SAFETY') {
+                    throw new Error("Generation stopped due to safety settings, even after override. The prompt might contain sensitive content.");
+                }
+
                 console.error("Unexpected Gemini API response structure:", data);
-                if (data.promptFeedback && data.promptFeedback.blockReason) {
-                    throw new Error(`Generation blocked. Reason: ${data.promptFeedback.blockReason}`);
-                }
-                throw new Error("Failed to extract content from the AI response.");
+                throw new Error("Failed to extract content from the AI response. Response might be empty.");
             }
 
             if (response.status === 503 || response.status === 500) {
