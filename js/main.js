@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function handleGenerate() {
+        // ... (fungsi ini tidak berubah)
         const userGeminiKey = localStorage.getItem("geminiApiKey");
         const userGithubKey = localStorage.getItem("githubApiToken");
 
@@ -33,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!repoPath) return showMessage("error", "Invalid GitHub URL format.");
 
         setLoading(true);
-        switchTab("markdown"); // Default ke tab README
+        switchTab("markdown");
 
         try {
             const repoDetails = await fetchGithubApi(`https://api.github.com/repos/${repoPath}`);
@@ -45,7 +46,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             const selectedLicense = DOM.licenseSelect.value;
             
-            // --- GENERATE LICENSE (jika dipilih) ---
             if (selectedLicense !== 'none') {
                 try {
                     const licenseData = await fetchGithubApi(`https://api.github.com/licenses/${selectedLicense}`);
@@ -63,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
                  DOM.licenseOutput.innerText = "No license selected.";
             }
 
-            // --- GENERATE README ---
             const imageUrls = Array.from(document.querySelectorAll(".image-url-input"))
                 .map(input => input.value.trim()).filter(Boolean);
             
@@ -73,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
             
             DOM.readmeOutput.innerText = stripMarkdownWrapper(generatedReadme);
             
-            // Pindah ke tab preview setelah README selesai
             switchTab("preview");
             showMessage("success", "README.md and LICENSE generated successfully!");
 
@@ -85,6 +83,42 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // --- FUNGSI BARU UNTUK CEK MODEL ---
+    async function checkAvailableModels() {
+        const apiKey = localStorage.getItem("geminiApiKey");
+        if (!apiKey) {
+            return showMessage("error", "Please save your Gemini API Key first.");
+        }
+
+        showMessage("info", "Checking available models...");
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+
+        try {
+            const response = await fetch(apiUrl);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error.message);
+            }
+            const data = await response.json();
+            
+            const generativeModels = data.models
+                .filter(model => model.supportedGenerationMethods.includes("generateContent"))
+                .map(model => `<li><code>${model.name.replace("models/", "")}</code></li>`)
+                .join("");
+
+            if (generativeModels) {
+                const messageHtml = `<strong>Available Generative Models:</strong><ul class="list-disc pl-5 mt-2">${generativeModels}</ul>`;
+                showMessage("info", messageHtml, true);
+            } else {
+                showMessage("error", "No generative models found for your API key.");
+            }
+
+        } catch (error) {
+            showMessage("error", `Failed to fetch models: ${error.message}`);
+        }
+    }
+
+    // ... (fungsi lainnya tidak berubah)
     function saveToken(key, value, name) {
         if (value && value.trim()) {
             localStorage.setItem(key, value);
@@ -132,6 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // --- Event Listeners ---
     DOM.generateBtn.addEventListener("click", handleGenerate);
+    DOM.checkModelsBtn.addEventListener("click", checkAvailableModels); // TAMBAHKAN INI
     DOM.copyBtn.addEventListener("click", () => copyToClipboard("readmeOutput"));
     DOM.copyLicenseBtn.addEventListener("click", () => copyToClipboard("licenseOutput"));
     

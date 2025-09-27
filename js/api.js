@@ -19,17 +19,16 @@ export async function fetchGithubApi(apiUrl) {
 }
 
 /**
- * Calls the Gemini API with retry logic for transient errors.
- * @param {string} prompt The prompt to send to the model.
+ * Calls the Gemini API with retry logic.
+ * @param {string} prompt The prompt to send.
  * @param {string} apiKey The user's Gemini API key.
- * @returns {Promise<string>} The generated text from the model.
+ * @returns {Promise<string>} The generated text.
  */
 export async function callGeminiApi(prompt, apiKey) {
-    if (!apiKey) throw new Error("Gemini API Key not found. Please add it in the settings.");
-    
-    // PERBAIKAN FINAL: Menggunakan model 'gemini-pro'. Ini adalah alias stabil 
-    // untuk model Pro yang ada di daftar Anda dan dijamin tersedia.
-    const apiUrl = `https://generativethinkinglanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    if (!apiKey) throw new Error("Gemini API Key not found.");
+
+    // PERBAIKAN FINAL: URL yang BENAR dan model 'gemini-2.5-pro' yang ADA di daftar Anda.
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
     const maxRetries = 3;
@@ -47,13 +46,12 @@ export async function callGeminiApi(prompt, apiKey) {
                 const data = await response.json();
                 if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
                     return data.candidates[0].content.parts[0].text;
-                } else {
-                    console.error("Unexpected Gemini API response structure:", data);
-                     if (data.promptFeedback && data.promptFeedback.blockReason) {
-                        throw new Error(`Generation blocked. Reason: ${data.promptFeedback.blockReason}`);
-                    }
-                    throw new Error("Failed to extract content from the AI response.");
                 }
+                console.error("Unexpected Gemini API response structure:", data);
+                if (data.promptFeedback && data.promptFeedback.blockReason) {
+                    throw new Error(`Generation blocked. Reason: ${data.promptFeedback.blockReason}`);
+                }
+                throw new Error("Failed to extract content from the AI response.");
             }
 
             if (response.status === 503 || response.status === 500) {
@@ -69,12 +67,10 @@ export async function callGeminiApi(prompt, apiKey) {
         } catch (error) {
             lastError = error;
             console.error(`Attempt ${attempt} failed:`, error);
-            // Tambahkan jeda juga untuk error network
             if (attempt < maxRetries) {
                 await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt - 1)));
             }
         }
     }
-
     throw new Error(`Failed to call Gemini API after ${maxRetries} attempts. Last error: ${lastError.message}`);
 }

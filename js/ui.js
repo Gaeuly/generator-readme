@@ -4,6 +4,7 @@
 export const DOM = {
     // Buttons
     generateBtn: document.getElementById("generateBtn"),
+    checkModelsBtn: document.getElementById("checkModelsBtn"), // TAMBAHKAN INI
     copyBtn: document.getElementById("copyBtn"),
     copyLicenseBtn: document.getElementById("copyLicenseBtn"),
     addImageBtn: document.getElementById("add-image-btn"),
@@ -46,8 +47,9 @@ export const DOM = {
  * Displays a message to the user.
  * @param {'error'|'success'|'info'} type - The type of message.
  * @param {string} message - The message content.
+ * @param {boolean} [isHtml=false] - Whether the message contains HTML.
  */
-export function showMessage(type, message) {
+export function showMessage(type, message, isHtml = false) {
     DOM.messageContainer.innerHTML = "";
     const colors = {
         error: "bg-red-100 border-red-500 text-red-700",
@@ -56,16 +58,27 @@ export function showMessage(type, message) {
     };
     const div = document.createElement("div");
     div.className = `p-4 rounded-lg border-2 ${colors[type] || colors.info}`;
-    div.textContent = message;
+    
+    if (isHtml) {
+        div.innerHTML = message;
+    } else {
+        div.textContent = message;
+    }
+
     DOM.messageContainer.appendChild(div);
-    setTimeout(() => {
-        if (div) {
-          div.style.transition = "opacity 0.5s";
-          div.style.opacity = "0";
-          setTimeout(() => div.remove(), 500);
-        }
-    }, 4000);
+
+    // Don't auto-hide info messages with lists
+    if (type !== 'info' || !isHtml) {
+        setTimeout(() => {
+            if (div) {
+              div.style.transition = "opacity 0.5s";
+              div.style.opacity = "0";
+              setTimeout(() => div.remove(), 500);
+            }
+        }, 5000);
+    }
 }
+
 
 /**
  * Toggles the loading state of the generate button.
