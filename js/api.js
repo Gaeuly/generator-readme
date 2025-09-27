@@ -18,32 +18,64 @@ export async function fetchGithubApi(apiUrl) {
     return response.json();
 }
 
+/**
+ * Calls the Gemini API with retry logic for transient errors.
+ * @param {string} prompt The prompt to send to the model.
+ * @param {string} apiKey The user's Gemini API key.
+ * @returns {Promise<string>} The generated text from the model.
+ */
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found. Please add it in the settings.");
     
-    // PERBAIKAN: Menggunakan endpoint v1beta dengan model gemini-2.5-flash dari daftar Anda.
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // PERBAIKAN 2: Menggunakan model gemini-1.5-flash-latest yang sangat stabil dan kuat.
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
-    const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
+    // PERBAIKAN 1: Menambahkan logika retry (coba lagi) jika terjadi error sementara
+    const maxRetries = 3;
+    let lastError = null;
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
-    }
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+            });
 
-    const data = await response.json();
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        return data.candidates[0].content.parts[0].text;
-    } else {
-        console.error("Unexpected Gemini API response structure:", data);
-        if (data.promptFeedback && data.promptFeedback.blockReason) {
-            throw new Error(`Generation blocked by the API. Reason: ${data.promptFeedback.blockReason}`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    console.error("Unexpected Gemini API response structure:", data);
+                     if (data.promptFeedback && data.promptFeedback.blockReason) {
+                        throw new Error(`Generation blocked. Reason: ${data.promptFeedback.blockReason}`);
+                    }
+                    throw new Error("Failed to extract content from the AI response.");
+                }
+            }
+
+            // Jika error bisa dicoba lagi (seperti 503 Service Unavailable)
+            if (response.status === 503 || response.status === 500) {
+                 lastError = new Error(`Gemini API Error: ${response.statusText} (attempt ${attempt})`);
+                 console.warn(lastError.message);
+                 // Tunggu sebelum mencoba lagi (1 detik, 2 detik, 4 detik)
+                 await new Promise(res => setTimeout(res, 1000 * Math.pow(2, attempt -1)));
+                 continue; // Lanjut ke percobaan berikutnya
+            }
+
+            // Untuk error lain, langsung gagalkan
+            const errorData = await response.json();
+            throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
+
+        } catch (error) {
+            lastError = error;
+            console.error(`Attempt ${attempt} failed:`, error);
         }
-        throw new Error("Failed to extract content from the AI response. The response might be empty or blocked.");
     }
+
+    // Jika semua percobaan gagal, lempar error terakhir
+    throw new Error(`Failed to call Gemini API after ${maxRetries} attempts. Last error: ${lastError.message}`);
 }
+
