@@ -11,7 +11,6 @@ export async function fetchGithubApi(apiUrl) {
     
     if (!response.ok) {
         if (response.status === 401) throw new Error("Invalid GitHub token. Please check your token.");
-        // REVISI PESAN ERROR INI
         if (response.status === 404) throw new Error("Repository not found or its default branch is inaccessible.");
         if (response.status === 403) throw new Error("GitHub API rate limit exceeded. Please check your token or wait.");
         throw new Error(`GitHub API Error (status: ${response.status})`);
@@ -22,7 +21,8 @@ export async function fetchGithubApi(apiUrl) {
 export async function callGeminiApi(prompt, apiKey) {
     if (!apiKey) throw new Error("Gemini API Key not found. Please add it in the settings.");
     
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${apiKey}`;
+    // PERBAIKAN: Menggunakan endpoint v1beta dengan model gemini-2.5-flash dari daftar Anda.
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
     const payload = { contents: [{ parts: [{ text: prompt }] }] };
 
     const response = await fetch(apiUrl, {
@@ -40,6 +40,10 @@ export async function callGeminiApi(prompt, apiKey) {
     if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
         return data.candidates[0].content.parts[0].text;
     } else {
-        throw new Error("Failed to extract content from the AI response.");
+        console.error("Unexpected Gemini API response structure:", data);
+        if (data.promptFeedback && data.promptFeedback.blockReason) {
+            throw new Error(`Generation blocked by the API. Reason: ${data.promptFeedback.blockReason}`);
+        }
+        throw new Error("Failed to extract content from the AI response. The response might be empty or blocked.");
     }
 }
